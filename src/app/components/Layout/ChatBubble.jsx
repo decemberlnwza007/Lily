@@ -106,7 +106,7 @@ function ChatArea({ messages, loading }) {
 
 function InputBar({ input, setInput, onSend, onQuickSelect, loading }) {
   return (
-    <div className="sticky bottom-0 bg-white/90 backdrop-blur-sm w-full flex justify-center shadow-2xl border-t border-green-100">
+    <div className="sticky bottom-0 bg-white/90 backdrop-blur-sm w-full flex justify-center shadow-2xl border-t border-green-100 z-10">
       <div className="max-w-full md:max-w-3xl mx-auto px-4 py-4">
         <div className="flex flex-wrap gap-2 justify-center mb-4">
           <button
@@ -139,7 +139,7 @@ function InputBar({ input, setInput, onSend, onQuickSelect, loading }) {
           </button>
         </div>
 
-        <div className="flex items-center bg-gradient-to-r from-slate-100 to-green-50 rounded-full px-5 py-3 shadow-lg focus-within:ring-4 focus-within:ring-green-200 focus-within:shadow-xl border border-green-100 transition-all duration-300">
+        <div className="flex items-center bg-gradient-to-r from-slate-100 to-green-50 rounded-full px-5 py-3 shadow-lg focus-within:ring-4 focus-within:ring-green-200 focus-within:shadow-xl border border-green-100 transition-all duration-300 z-10">
           <input
             type="text"
             value={input}
