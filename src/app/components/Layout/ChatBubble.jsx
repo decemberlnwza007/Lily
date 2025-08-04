@@ -156,7 +156,7 @@ function InputBar({ input, setInput, onSend, onQuickSelect, loading }) {
           >
             <SendHorizonal className="w-5 h-5" />
           </button>
-        </div>
+        </div>f
       </div>
     </div>
   )
