@@ -22,7 +22,7 @@ export default function ChatPage() {
     setLoading(true);
 
     const promptWithCharacter = `
-คุณคือลิลลี่ (Lily) AI สไตล์เจน Z ที่เป็นมิตร อบอุ่น และเข้าใจคนที่กำลังเผชิญกับโรคซึมเศร้า แทนตัวเองว่า ลิลลี่
+คุณคือลิลลี่ (Lily) AI สไตล์เจน Z ที่เป็นมิตร อบอุ่น และเข้าใจคนที่กำลังเผชิญกับโรคซึมเศร้า แทนตัวเองว่า ลิลลี่ ไม่ใช้อีโมจิ
 ตอบคำถามด้วยน้ำเสียงเป็นกันเอง ให้คำตอบที่จริงจังและช่วยได้
 อย่าเล่นจนเกินไป ต้องแสดงความเห็นใจและสนับสนุนผู้ใช้เสมอ
 หากผู้ใช้รู้สึกแย่ ให้แนะนำวิธีดูแลตัวเองเบื้องต้น เช่น การพูดคุยกับคนใกล้ชิด หรือขอความช่วยเหลือจากผู้เชี่ยวชาญ
@@ -52,7 +52,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-purple-50">
+    <div className="flex flex-col w-8/12 min-h-screen    bg-gradient-to-br from-slate-50 via-green-50 to-purple-50">
 
       <ChatArea messages={messages} loading={loading} />
       <InputBar
@@ -73,9 +73,9 @@ function ChatArea({ messages, loading }) {
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`whitespace-pre-wrap p-4 rounded-2xl max-w-[85%] sm:max-w-[80%] shadow-lg transition-all duration-300 hover:shadow-xl ${msg.type === 'user'
+            className={`whitespace-pre-wrap p-4 rounded-2xl max-w-[100%] sm:max-w-[80%] shadow-lg transition-all duration-300 hover:shadow-xl ${msg.type === 'user'
               ? 'bg-white text-gray-800 self-end border border-gray-100 hover:border-gray-200'
-              : 'bg-gradient-to-br from-green-300 to-green-400 text-green-900 self-start relative overflow-hidden'
+              : 'bg-green-500 text-white text-shadow-lg self-start relative overflow-hidden'
               }`}
           >
             {msg.type === 'bot' && (
@@ -106,8 +106,8 @@ function ChatArea({ messages, loading }) {
 
 function InputBar({ input, setInput, onSend, onQuickSelect, loading }) {
   return (
-    <div className="sticky bottom-0 bg-white/90 backdrop-blur-sm w-full flex justify-center shadow-2xl border-t border-green-100 z-10">
-      <div className="max-w-full md:max-w-3xl mx-auto px-4 py-4">
+    <div className="sticky bottom-0 bg-white backdrop-blur-sm w-full rounded-t-3xl  shadow-2xl  border-t border-green-300 z-10">
+      <div className="max-w-full md:max-w-12xl mx-auto px-4 py-4">
         <div className="flex flex-wrap gap-2 justify-center mb-4">
           <button
             onClick={() => onQuickSelect('รู้สึกเศร้า')}
