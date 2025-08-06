@@ -1,10 +1,10 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { Home, MessageCircle, LogOut, Menu } from "lucide-react";
+import { useState } from 'react'
+import { Home, MessageCircle, LogOut, Menu } from 'lucide-react'
 
 export default function SidebarLayout() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
 
   return (
     <div className="flex h-screen">
@@ -17,7 +17,7 @@ export default function SidebarLayout() {
 
       <aside
         className={`fixed top-0 left-0 h-full w-64 bg-green-300 p-8 shadow-2xl border-r border-green-400/80 backdrop-blur-sm flex flex-col justify-between transform transition-transform duration-300 z-40
-          ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:static`}
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static`}
       >
         <div>
           <h1 className="text-2xl font-extrabold mb-10 text-white tracking-wide select-none">
@@ -62,5 +62,5 @@ export default function SidebarLayout() {
         </div>
       </aside>
     </div>
-  );
+  )
 }

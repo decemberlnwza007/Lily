@@ -1,25 +1,25 @@
 'use client'
 
-import { useState } from "react"
-import { SendHorizonal, Frown, SmilePlus, Meh, Star, Heart } from "lucide-react"
+import { useState } from 'react'
+import { SendHorizonal, Frown, SmilePlus, Meh, Star, Heart } from 'lucide-react'
 
 export default function ChatPage() {
   const [messages, setMessages] = useState([
     {
       type: 'bot',
-      text: `สวัสดีค่ะ มีอะไรให้ลิลลี่ช่วยมั้ยคะ?`
-    }
+      text: `สวัสดีค่ะ มีอะไรให้ลิลลี่ช่วยมั้ยคะ?`,
+    },
   ])
   const [input, setInput] = useState('')
-  const [loading, setLoading] = useState(false) 
+  const [loading, setLoading] = useState(false)
 
   const handleSend = async (text) => {
-    if (!text.trim()) return;
+    if (!text.trim()) return
 
-    const userMsg = { type: 'user', text };
-    setMessages(prev => [...prev, userMsg]);
-    setInput('');
-    setLoading(true);
+    const userMsg = { type: 'user', text }
+    setMessages((prev) => [...prev, userMsg])
+    setInput('')
+    setLoading(true)
 
     const promptWithCharacter = `
 คุณคือลิลลี่ (Lily) AI สไตล์เจน Z ที่เป็นมิตร อบอุ่น และเข้าใจคนที่กำลังเผชิญกับโรคซึมเศร้า แทนตัวเองว่า ลิลลี่ ไม่ใช้อีโมจิ
@@ -34,26 +34,28 @@ export default function ChatPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: promptWithCharacter }),
-      });
+      })
 
-      const data = await res.json();
-      const botMsg = { type: 'bot', text: data.reply };
-      setMessages(prev => [...prev, botMsg]);
+      const data = await res.json()
+      const botMsg = { type: 'bot', text: data.reply }
+      setMessages((prev) => [...prev, botMsg])
     } catch (error) {
-      const botMsg = { type: 'bot', text: 'โอ๊ย เกิดปัญหาอะไรง่ะ ลองใหม่อีกทีนะ' };
-      setMessages(prev => [...prev, botMsg]);
+      const botMsg = {
+        type: 'bot',
+        text: 'โอ๊ย เกิดปัญหาอะไรง่ะ ลองใหม่อีกทีนะ',
+      }
+      setMessages((prev) => [...prev, botMsg])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleQuickSelect = (text) => {
-    handleSend(text);
-  };
+    handleSend(text)
+  }
 
   return (
     <div className="flex flex-col w-8/12 min-h-screen    bg-gradient-to-br from-slate-50 via-green-50 to-purple-50">
-
       <ChatArea messages={messages} loading={loading} />
       <InputBar
         input={input}
@@ -73,17 +75,16 @@ function ChatArea({ messages, loading }) {
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`whitespace-pre-wrap p-4 rounded-2xl max-w-[100%] sm:max-w-[80%] shadow-lg transition-all duration-300 hover:shadow-xl ${msg.type === 'user'
-              ? 'bg-white text-gray-800 self-end border border-gray-100 hover:border-gray-200'
-              : 'bg-green-500 text-white text-shadow-lg self-start relative overflow-hidden'
-              }`}
+            className={`whitespace-pre-wrap p-4 rounded-2xl max-w-[100%] sm:max-w-[80%] shadow-lg transition-all duration-300 hover:shadow-xl ${
+              msg.type === 'user'
+                ? 'bg-white text-gray-800 self-end border border-gray-100 hover:border-gray-200'
+                : 'bg-green-500 text-white text-shadow-lg self-start relative overflow-hidden'
+            }`}
           >
             {msg.type === 'bot' && (
               <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10"></div>
             )}
-            <div className="relative z-10">
-              {msg.text}
-            </div>
+            <div className="relative z-10">{msg.text}</div>
           </div>
         ))}
         {loading && (
@@ -91,9 +92,18 @@ function ChatArea({ messages, loading }) {
             <div className="absolute top-0 right-0 w-16 h-16 bg-white/20 rounded-full -mr-8 -mt-8"></div>
             <div className="relative z-10 flex items-center gap-2">
               <div className="flex gap-1">
-                <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
-                <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
-                <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                <div
+                  className="w-2 h-2 bg-green-600 rounded-full animate-bounce"
+                  style={{ animationDelay: '0ms' }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-green-600 rounded-full animate-bounce"
+                  style={{ animationDelay: '150ms' }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-green-600 rounded-full animate-bounce"
+                  style={{ animationDelay: '300ms' }}
+                ></div>
               </div>
               <span className="ml-2">ลิลลี่กำลังพิมพ์...</span>
             </div>
@@ -121,7 +131,8 @@ function InputBar({ input, setInput, onSend, onQuickSelect, loading }) {
             disabled={loading}
             className="bg-gradient-to-r from-purple-200 to-purple-300 hover:from-purple-300 hover:to-purple-400 disabled:opacity-50 transition-all duration-300 flex items-center gap-2 text-purple-900 px-4 py-2.5 rounded-full text-sm md:text-base shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
           >
-            <SmilePlus className="text-purple-700 w-4 h-4" /> อยากคุยหน่อยได้ไหม?
+            <SmilePlus className="text-purple-700 w-4 h-4" />{' '}
+            อยากคุยหน่อยได้ไหม?
           </button>
           <button
             onClick={() => onQuickSelect('ช่วยแนะนำหน่อย')}
@@ -138,7 +149,6 @@ function InputBar({ input, setInput, onSend, onQuickSelect, loading }) {
             <Meh className="text-purple-700 w-4 h-4" /> รู้สึกกังวล
           </button>
         </div>
-
         <div className="flex items-center bg-gradient-to-r from-slate-100 to-green-50 rounded-full px-5 py-3 shadow-lg focus-within:ring-4 focus-within:ring-green-200 focus-within:shadow-xl border border-green-100 transition-all duration-300 z-10">
           <input
             type="text"
@@ -156,7 +166,8 @@ function InputBar({ input, setInput, onSend, onQuickSelect, loading }) {
           >
             <SendHorizonal className="w-5 h-5" />
           </button>
-        </div>f
+        </div>
+        f
       </div>
     </div>
   )

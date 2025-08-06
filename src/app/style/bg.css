@@ -1,5 +1,5 @@
 .bg {
-    background-image: url("./../../../public/image/bg.jpg");
-    background-repeat: repeat;
-    opacity: 100%;
+  background-image: url('./../../../public/image/bg.jpg');
+  background-repeat: repeat;
+  opacity: 100%;
 }
