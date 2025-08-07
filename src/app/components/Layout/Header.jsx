@@ -2,7 +2,7 @@ import { Heart } from 'lucide-react'
 
 export default function Header() {
   return (
-    <header className="bg-green-400 w-8/12  shadow-2xl relative overflow-hidden">
+    <header className="bg-green-400 w-12/12  shadow-2xl relative overflow-hidden">
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-2 left-4 w-3 h-3 bg-white rounded-full animate-pulse"></div>
         <div className="absolute top-6 right-8 w-2 h-2 bg-green-200 rounded-full animate-bounce"></div>

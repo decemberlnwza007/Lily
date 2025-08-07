@@ -8,7 +8,9 @@ import './../style/Chat.css'
 
 export default function Chatbot() {
   return (
-    <div className="min-h-screen flex bg">
+    <div className="min-h-screen flex bg overflow">
+      <SidebarLayout />
+
       <main className="flex-1 flex flex-col relative">
         <div
           className="absolute inset-0 opacity-10"
@@ -18,12 +20,11 @@ export default function Chatbot() {
             backgroundRepeat: 'repeat',
           }}
         />
-
-        <div className="relative z-10 flex flex-col h-full">
-          <div className="flex justify-center">
+        <div className="relative z-10 flex flex-col h-full ">
+          {/* <div className="flex ">
             <Header />
-          </div>
-          <div className="flex justify-center flex-1">
+          </div> */}
+          <div className="flex flex-1 ">
             <ChatArea />
           </div>
         </div>
