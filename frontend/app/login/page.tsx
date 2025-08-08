@@ -28,9 +28,24 @@ export default function AuthButton() {
     )
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    signIn('credentials', { email, password })
+
+    const res = await fetch('/api/user/save', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    })
+
+    const data = await res.json()
+
+    if (res.ok) {
+      signIn('credentials', { email, password })
+    } else {
+      alert(data.error || 'เกิดข้อผิดพลาด')
+    }
   }
 
   return (
@@ -43,14 +58,19 @@ export default function AuthButton() {
 
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-mint-100 to-emerald-100 rounded-full mb-4 shadow-lg">
+          {/* <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-mint-100 to-emerald-100 rounded-full mb-4 shadow-lg">
             <div className="relative">
 
             </div>
-          </div>
+          </div> */}
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             ยินดีต้อนรับสู่ Lily
           </h1>
+          <p className="text-gray-600 text-sm leading-relaxed">
+            พื้นที่ปลอดภัยสำหรับสุขภาพใจของคุณ
+            <br />
+            เราพร้อมอยู่เคียงข้างคุณในทุกช่วงเวลา
+          </p>
         </div>
 
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 border border-white/50">
@@ -132,7 +152,7 @@ export default function AuthButton() {
               <button
                 type="button"
                 onClick={() => signIn('google')}
-                className="flex items-center justify-center gap-3 bg-white border border-mint-200 text-mint-600 font-semibold px-6 py-3 rounded-2xl hover:bg-mint-50 transition w-full hover:bg-green-200"
+                className="flex items-center cursor-pointer justify-center gap-3 bg-white border border-mint-200 text-mint-600 font-semibold px-6 py-3 rounded-2xl hover:bg-mint-50 transition w-full hover:bg-green-200"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Home, MessageCircle, LogOut, Menu, Settings, X, User } from 'lucide-react'
+import { Home, MessageCircle, LogOut, Menu, Settings, X, User, FileImage, Heart } from 'lucide-react'
 import Image from 'next/image'
 
 import { useSession } from 'next-auth/react'
@@ -82,8 +82,15 @@ export default function SidebarLayout() {
               href="/info"
               className="flex items-center gap-4 px-6 py-4 text-green-800 hover:text-green-900 hover:bg-white/20 transition-all duration-200 rounded-2xl font-medium group backdrop-blur-sm border border-white/20 shadow-sm hover:shadow-md"
             >
-              <MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
+              <FileImage className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
               <span className="text-lg">InfoGraphic</span>
+            </a>
+             <a
+              href="/despression"
+              className="flex items-center gap-4 px-6 py-4 text-green-800 hover:text-green-900 hover:bg-white/20 transition-all duration-200 rounded-2xl font-medium group backdrop-blur-sm border border-white/20 shadow-sm hover:shadow-md"
+            >
+              <Heart className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
+              <span className="text-lg">แบบประเมิน</span>
             </a>
           </nav>
           

@@ -1,8 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Swal from 'sweetalert2'
+
+import './../style/login.css'
 
 export default function EstimateForm() {
+  const router = useRouter();
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState({})
 
@@ -49,12 +54,47 @@ export default function EstimateForm() {
       if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(currentQuestion + 1)
       } else {
-        alert(
-          `การประเมินเสร็จสิ้น คะแนนรวม: ${Object.values(newAnswers).reduce((sum, val) => sum + val, 0)}`,
-        )
+        const totalScore = Object.values(newAnswers).reduce((sum, val) => sum + val, 0)
+        let resultText = ''
+
+        if (totalScore < 7) {
+          resultText = 'ไม่มีอาการของโรคซึมเศร้าหรือมีอาการของโรคซึมเศร้าระดับน้อยมาก'
+        } else if (totalScore >= 7 && totalScore <= 12) {
+          resultText = 'มีอาการของโรคซึมเศร้า ระดับน้อย'
+        } else if (totalScore >= 13 && totalScore <= 18) {
+          resultText = 'มีอาการของโรคซึมเศร้า ระดับปานกลาง'
+        } else if (totalScore >= 19) {
+          resultText = 'มีอาการของโรคซึมเศร้า ระดับรุนแรง'
+        }
+
+        let alertMessage = `คะแนนรวม: ${totalScore}\n\n${resultText}`
+
+        if (totalScore >= 7) {
+          alertMessage += '\n\n⚠️ คะแนนสูง แนะนำให้ประเมินแนวโน้มการฆ่าตัวตาย (แบบประเมิน 8Q)'
+        }
+
+        Swal.fire({
+          icon: 'info',
+          title: 'การประเมินเสร็จสิ้น',
+          text: alertMessage,
+          confirmButtonText: 'รับทราบ',
+          customClass: {
+            confirmButton: 'bg-green-400 hover:bg-green-500 text-white font-bold py-2 px-4 rounded',
+            popup: 'rounded-xl p-6',
+          },
+          buttonsStyling: false,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            if (totalScore >= 7) {
+              router.push('/eightquestion')
+            }
+          }
+        })
       }
     }, 500)
   }
+
+
 
   const goToPrevious = () => {
     if (currentQuestion > 0) {
@@ -118,11 +158,10 @@ export default function EstimateForm() {
                   <button
                     key={index}
                     onClick={() => handleAnswer(option.value)}
-                    className={`w-full p-6 rounded-2xl font-medium text-lg transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md ${option.color} ${
-                      answers[currentQuestion] === option.value
-                        ? 'ring-4 ring-mint-300 scale-105'
-                        : ''
-                    }`}
+                    className={`w-full p-6 rounded-2xl font-medium text-lg transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md ${option.color} ${answers[currentQuestion] === option.value
+                      ? 'ring-4 ring-mint-300 scale-105'
+                      : ''
+                      }`}
                   >
                     <div className="flex items-center justify-between">
                       <span>{option.label}</span>
@@ -163,13 +202,12 @@ export default function EstimateForm() {
             {questions.map((_, index) => (
               <div
                 key={index}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  index === currentQuestion
-                    ? 'bg-mint-500 scale-125'
-                    : answers[index] !== undefined
-                      ? 'bg-mint-300'
-                      : 'bg-gray-200'
-                }`}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentQuestion
+                  ? 'bg-mint-500 scale-125'
+                  : answers[index] !== undefined
+                    ? 'bg-mint-300'
+                    : 'bg-gray-200'
+                  }`}
               ></div>
             ))}
           </div>

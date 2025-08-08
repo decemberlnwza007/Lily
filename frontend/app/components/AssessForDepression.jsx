@@ -1,8 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Swal from 'sweetalert2'
+
+import './../style/login.css'
 
 export default function AssessForDespression() {
+  const router = useRouter()
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState({})
 
@@ -15,17 +20,33 @@ export default function AssessForDespression() {
     {
       value: 0,
       label: 'ไม่มี',
-      color:
-        'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-emerald-200',
-      icon: '',
+      color: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200',
     },
     {
       value: 1,
       label: 'มี',
-      color: 'bg-amber-100 text-amber-800 hover:bg-amber-200 border-amber-200',
-      icon: '',
+      color: 'bg-amber-100 text-amber-800 hover:bg-amber-200',
     },
   ]
+
+  const successAlert = (text, redirectPath) => {
+    Swal.fire({
+      icon: 'success',
+      titleText: 'ทำแบบประเมินสำเร็จ',
+      text: text,
+      confirmButtonText: 'ต่อไป',
+      customClass: {
+        confirmButton:
+          'bg-green-300 hover:bg-green-400 text-green-900 font-bold py-2 px-4 rounded duration-500 cursor-pointer',
+        popup: 'rounded-2xl',
+      },
+      buttonsStyling: false,
+    }).then((result) => {
+      if (result.isConfirmed && redirectPath) {
+        router.push(redirectPath)
+      }
+    })
+  }
 
   const handleAnswer = (value) => {
     const newAnswers = { ...answers, [currentQuestion]: value }
@@ -35,7 +56,19 @@ export default function AssessForDespression() {
       if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(currentQuestion + 1)
       } else {
-        alert('ขอบคุณที่ทำแบบประเมินจนเสร็จ!')
+        const totalScore = Object.values(newAnswers).reduce(
+          (sum, current) => sum + current,
+          0
+        )
+
+        if (totalScore === 2) {
+          successAlert(
+            'คุณเป็นผู้มีความเสี่ยง หรือมีแนวโน้มที่จะเป็นโรคซึมเศร้ากดต่อไปเพื่อทำแบบประเมินต่อไป',
+            '/estimate'
+          )
+        } else if (totalScore <= 1) {
+          successAlert('ทำแบบประเมินสำเร็จ')
+        }
       }
     }, 600)
   }
@@ -46,110 +79,60 @@ export default function AssessForDespression() {
     }
   }
 
-  const progress = (currentQuestion / questions.length) * 100
+  const progress = ((currentQuestion + 1) / questions.length) * 100
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-mint-50 via-mint-500 to-indigo-100 p-6 relative overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
-        <div
-          className="absolute -bottom-40 -right-40 w-96 h-96 bg-gradient-to-r from-emerald-400/20 to-teal-400/20 rounded-full blur-3xl animate-pulse"
-          style={{ animationDelay: '2s' }}
-        ></div>
-        <div
-          className="absolute top-1/2 left-1/4 w-64 h-64 bg-gradient-to-r from-pink-400/10 to-rose-400/10 rounded-full blur-3xl animate-pulse"
-          style={{ animationDelay: '4s' }}
-        ></div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-mint-50 to-emerald-50 p-4 relative overflow-hidden">
+      <div className="absolute top-20 left-10 w-64 h-64 bg-mint-50/50 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-20 right-10 w-80 h-80 bg-emerald-50/50 rounded-full blur-3xl"></div>
 
-      <div className="max-w-4xl mx-auto mb-8 relative z-10">
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold text-mint-500 bg-clip-text text-transparent">
-              แบบประเมินภาวะซึมเศร้า
-            </h1>
-            <div className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-              {currentQuestion + 1} / {questions.length}
-            </div>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-            <div
-              className="h-full bg-mint-500 rounded-full transition-all duration-700 ease-out"
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
-          <div className="text-right text-sm text-gray-500 mt-2">
-            {Math.round(progress)}% เสร็จสิ้น
-          </div>
+      <div className="max-w-4xl mx-auto mb-8">
+        <div className="bg-white rounded-full h-3 shadow-sm">
+          <div
+            className="bg-gradient-to-r from-mint-500 to-emerald-500 h-3 rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+        <div className="flex justify-between items-center mt-2 text-sm text-gray-600">
+          <span>
+            ข้อ {currentQuestion + 1} จาก {questions.length}
+          </span>
+          <span>{Math.round(progress)}% เสร็จสิ้น</span>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto relative z-10">
-        <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden min-h-[600px] border border-white/20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px]">
-            <div className="p-12 flex flex-col justify-center bg-gradient-to-br from-white/50 to-blue-50/30 relative">
-              <div className="absolute top-8 left-8">
-                <div className="inline-flex items-center px-4 py-2 bg-mint-500 text-mint-500 rounded-full text-sm font-medium shadow-sm">
-                  <div className="w-2 h-2 bg-mint-500 rounded-full mr-2 animate-pulse"></div>
-                  ในช่วง 2 สัปดาห์ที่ผ่านมารวมทั้งวันนี้
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden min-h-[500px]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
+            <div className="p-12 flex flex-col justify-center bg-gradient-to-br from-white to-mint-50/20">
+              <div className="space-y-6">
+                <div className="inline-block px-4 py-2 bg-mint-100 text-mint-700 rounded-full text-sm font-medium">
+                  กรุณาเลือกคำตอบที่ตรงกับความรู้สึกของท่านมากที่สุด
                 </div>
-              </div>
 
-              <div className="space-y-8 mt-8">
-                <div
-                  className="transform transition-all duration-500 ease-out"
-                  key={currentQuestion}
-                >
-                  <h2 className="text-3xl lg:text-4xl font-bold text-gray-800 leading-tight mb-6">
-                    {questions[currentQuestion]}
-                  </h2>
-
-                  <p className="text-gray-600 text-lg leading-relaxed">
-                    กรุณาเลือกคำตอบที่ตรงกับความรู้สึกของท่านมากที่สุด
-                  </p>
-                </div>
+                <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
+                  {questions[currentQuestion]}
+                </h2>
               </div>
             </div>
 
-            <div className="p-12 bg-gradient-to-br from-gray-50/50 to-white/30 flex flex-col justify-center">
-              <div className="space-y-6">
+            <div className="p-12 bg-gray-50/50 flex flex-col justify-center">
+              <div className="space-y-4">
                 {options.map((option, index) => (
                   <button
                     key={index}
                     onClick={() => handleAnswer(option.value)}
-                    className={`group w-full p-8 rounded-2xl font-medium text-lg transition-all duration-500 transform hover:scale-105 shadow-lg hover:shadow-xl border-2 ${option.color} ${
+                    className={`w-full p-6 rounded-2xl font-medium text-lg transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md ${option.color} ${
                       answers[currentQuestion] === option.value
-                        ? 'ring-4 ring-blue-300 scale-105 shadow-2xl'
+                        ? 'ring-4 ring-mint-300 scale-105'
                         : ''
-                    } hover:rotate-1 hover:-translate-y-1`}
-                    style={{
-                      animationDelay: `${index * 200}ms`,
-                      animation: 'slideInRight 0.6s ease-out',
-                    }}
+                    }`}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 rounded-full bg-white/50 flex items-center justify-center shadow-sm group-hover:rotate-12 transition-transform duration-300">
-                          <span className="text-xl">{option.icon}</span>
-                        </div>
-                        <span className="text-xl">{option.label}</span>
-                      </div>
-
-                      {answers[currentQuestion] === option.value && (
-                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center animate-pulse">
-                          <svg
-                            className="w-5 h-5 text-white"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
-                      )}
+                      <span>{option.label}</span>
+                      <span className="text-2xl font-bold opacity-50">
+                        {option.value}
+                      </span>
                     </div>
                   </button>
                 ))}
@@ -162,10 +145,10 @@ export default function AssessForDespression() {
           <button
             onClick={goToPrevious}
             disabled={currentQuestion === 0}
-            className="group px-8 py-4 bg-white/80 backdrop-blur-sm text-gray-700 rounded-2xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 hover:bg-white border border-white/20"
+            className="px-6 py-3 bg-white text-gray-600 rounded-xl font-medium shadow-sm hover:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             <svg
-              className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300"
+              className="w-5 h-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -180,66 +163,26 @@ export default function AssessForDespression() {
             ย้อนกลับ
           </button>
 
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             {questions.map((_, index) => (
               <div
                 key={index}
-                className={`transition-all duration-500 rounded-full ${
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
                   index === currentQuestion
-                    ? 'w-12 h-4 bg-gray-900 shadow-lg'
+                    ? 'bg-mint-500 scale-125'
                     : answers[index] !== undefined
-                      ? 'w-4 h-4 bg-emerald-400 shadow-md'
-                      : 'w-4 h-4 bg-gray-300'
+                    ? 'bg-mint-300'
+                    : 'bg-gray-200'
                 }`}
               ></div>
             ))}
           </div>
 
-          <button className="group px-8 py-4 bg-yellow-500  text-white rounded-2xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-3 hover:from-blue-600 hover:to-purple-600 hover:scale-105">
-            <span>ช่วยเหลือ</span>
-            <svg
-              className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </button>
+          {/* ปุ่มช่วยเหลือหรือปุ่มถัดไป ถ้าต้องการเติมบอกได้นะ */}
         </div>
       </div>
 
       <style jsx>{`
-        @keyframes slideInRight {
-          from {
-            opacity: 0;
-            transform: translateX(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-10px);
-          }
-        }
-
-        .animate-float {
-          animation: float 3s ease-in-out infinite;
-        }
-
         .from-mint-50 {
           --tw-gradient-from: #f0fdfa;
         }
@@ -258,9 +201,6 @@ export default function AssessForDespression() {
         .text-mint-500 {
           color: #14b8a6;
         }
-        .from-mint-500 {
-          background-color: #14b8a6;
-        }
         .text-mint-600 {
           color: #0d9488;
         }
@@ -276,10 +216,10 @@ export default function AssessForDespression() {
         .border-mint-300 {
           border-color: #5eead4;
         }
-        .focus\\:ring-mint-300:focus {
+        .focus\:ring-mint-300:focus {
           --tw-ring-color: #5eead4;
         }
-        .focus\\:border-mint-300:focus {
+        .focus\:border-mint-300:focus {
           border-color: #5eead4;
         }
         .from-mint-500 {
@@ -288,19 +228,19 @@ export default function AssessForDespression() {
         .to-emerald-500 {
           --tw-gradient-to: #10b981;
         }
-        .hover\\:from-mint-600:hover {
+        .hover\:from-mint-600:hover {
           --tw-gradient-from: #0d9488;
         }
-        .hover\\:to-emerald-600:hover {
+        .hover\:to-emerald-600:hover {
           --tw-gradient-to: #059669;
         }
-        .hover\\:text-mint-600:hover {
+        .hover\:text-mint-600:hover {
           color: #0d9488;
         }
-        .hover\\:text-mint-700:hover {
+        .hover\:text-mint-700:hover {
           color: #0f766e;
         }
-        .bg-mint-50\\/50 {
+        .bg-mint-50\/50 {
           background-color: rgb(240 253 250 / 0.5);
         }
         .ring-mint-300 {
