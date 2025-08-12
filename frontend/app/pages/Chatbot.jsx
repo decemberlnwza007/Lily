@@ -24,7 +24,7 @@ export default function Chatbot() {
           {/* <div className="flex ">
             <Header />
           </div> */}
-          <div className="flex flex-1 ">
+          <div className="flex flex-1">
             <ChatArea />
           </div>
         </div>
