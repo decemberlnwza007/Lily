@@ -140,7 +140,7 @@ export default function AuthButton() {
               <p className="text-gray-600 text-sm">
                 ยังไม่มีบัญชีใช่ไหม?{' '}
                 <a
-                  href="#"
+                  href="/register"
                   className="text-mint-600 hover:text-mint-700 font-medium hover:underline transition-colors duration-200"
                 >
                   สมัครสมาชิกที่นี่
