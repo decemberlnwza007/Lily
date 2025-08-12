@@ -62,16 +62,9 @@ export default function SidebarLayout() {
           </div>
 
           <nav className="space-y-3">
-            <a
-              href="/login"
-              className="flex items-center gap-4 px-6 py-4 text-green-800 hover:text-green-900 hover:bg-white/20 transition-all duration-200 rounded-2xl font-medium group backdrop-blur-sm border border-white/20 shadow-sm hover:shadow-md"
-            >
-              <Home className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
-              <span className="text-lg">หน้าแรก</span>
-            </a>
             
             <a
-              href="#"
+              href="/"
               className="flex items-center gap-4 px-6 py-4 text-green-800 hover:text-green-900 hover:bg-white/20 transition-all duration-200 rounded-2xl font-medium group backdrop-blur-sm border border-white/20 shadow-sm hover:shadow-md"
             >
               <MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />

@@ -34,7 +34,7 @@ export default function AssessForDespression() {
       icon: 'success',
       titleText: 'ทำแบบประเมินสำเร็จ',
       text: text,
-      confirmButtonText: 'ต่อไป',
+      confirmButtonText: 'ตกลง',
       customClass: {
         confirmButton:
           'bg-green-300 hover:bg-green-400 text-green-900 font-bold py-2 px-4 rounded duration-500 cursor-pointer',
@@ -82,11 +82,11 @@ export default function AssessForDespression() {
   const progress = ((currentQuestion + 1) / questions.length) * 100
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-mint-50 to-emerald-50 p-4 relative overflow-hidden">
+    <div className="h-full min-h-0 bg-gradient-to-br from-mint-50 to-emerald-50 p-4 relative overflow-hidden">
       <div className="absolute top-20 left-10 w-64 h-64 bg-mint-50/50 rounded-full blur-3xl"></div>
       <div className="absolute bottom-20 right-10 w-80 h-80 bg-emerald-50/50 rounded-full blur-3xl"></div>
 
-      <div className="max-w-4xl mx-auto mb-8">
+      <div className="w-full max-w-none px-6 lg:px-10 mb-8">
         <div className="bg-white rounded-full h-3 shadow-sm">
           <div
             className="bg-gradient-to-r from-mint-500 to-emerald-500 h-3 rounded-full transition-all duration-500 ease-out"
@@ -101,7 +101,7 @@ export default function AssessForDespression() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto">
+      <div className="w-full max-w-none px-6 lg:px-10">
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden min-h-[500px]">
           <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
             <div className="p-12 flex flex-col justify-center bg-gradient-to-br from-white to-mint-50/20">
@@ -122,11 +122,10 @@ export default function AssessForDespression() {
                   <button
                     key={index}
                     onClick={() => handleAnswer(option.value)}
-                    className={`w-full p-6 rounded-2xl font-medium text-lg transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md ${option.color} ${
-                      answers[currentQuestion] === option.value
+                    className={`w-full p-6 rounded-2xl font-medium text-lg transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md ${option.color} ${answers[currentQuestion] === option.value
                         ? 'ring-4 ring-mint-300 scale-105'
                         : ''
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-between">
                       <span>{option.label}</span>
@@ -167,13 +166,12 @@ export default function AssessForDespression() {
             {questions.map((_, index) => (
               <div
                 key={index}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  index === currentQuestion
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentQuestion
                     ? 'bg-mint-500 scale-125'
                     : answers[index] !== undefined
-                    ? 'bg-mint-300'
-                    : 'bg-gray-200'
-                }`}
+                      ? 'bg-mint-300'
+                      : 'bg-gray-200'
+                  }`}
               ></div>
             ))}
           </div>

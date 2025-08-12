@@ -133,7 +133,7 @@ export default function EstimateForm() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto">
+      <div className="w-full max-w-none px-6 lg:px-10 mb-8">
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden min-h-[500px]">
           <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
             <div className="p-12 flex flex-col justify-center bg-gradient-to-br from-white to-mint-50/20">
