@@ -5,13 +5,13 @@ import type { NextRequest } from "next/server";
 const secret = process.env.NEXTAUTH_SECRET;
 
 export async function middleware(req: NextRequest) {
-  const token = await getToken({ req, secret });
-console.log(token)
-  if (token && ["/login", "/register"].includes(req.nextUrl.pathname)) {
-    return NextResponse.redirect(new URL("/", req.url));
-  }
+//   const token = await getToken({ req, secret });
+// console.log(token)
+//   if (token && ["/login", "/register"].includes(req.nextUrl.pathname)) {
+//     return NextResponse.redirect(new URL("/", req.url));
+//   }
 
-  return NextResponse.next();
+//   return NextResponse.next();
 }
 
 export const config = {

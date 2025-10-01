@@ -67,7 +67,7 @@ export default function InfoGraphic() {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-100">
+    <div className="relative min-h-screen">
       <div className="pointer-events-none absolute inset-0 opacity-40 [mask-image:radial-gradient(ellipse_at_center,white,transparent_70%)]">
         <div className="absolute -top-28 -left-16 size-[22rem] rounded-full bg-emerald-200 blur-3xl" />
         <div className="absolute bottom-0 right-0 size-[26rem] rounded-full bg-teal-200 blur-3xl" />

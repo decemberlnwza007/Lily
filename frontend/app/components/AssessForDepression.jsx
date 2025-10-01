@@ -129,9 +129,9 @@ export default function AssessForDespression() {
                   >
                     <div className="flex items-center justify-between">
                       <span>{option.label}</span>
-                      <span className="text-2xl font-bold opacity-50">
+                      {/* <span className="text-2xl font-bold opacity-50">
                         {option.value}
-                      </span>
+                      </span> */}
                     </div>
                   </button>
                 ))}

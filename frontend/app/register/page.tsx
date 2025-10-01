@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Mail, Lock, User, Image as ImageIcon } from 'lucide-react'
+import { supabase } from '../lib/supabaseClient'
 import '../style/login.css'
 
 export default function RegisterForm() {
@@ -13,45 +14,93 @@ export default function RegisterForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
-  const [image, setImage] = useState('')
+  const [file, setFile] = useState<File | null>(null)
+  const [preview, setPreview] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const uploadAvatar = async (userId: string) => {
+    if (!file) return null
+    const ext = file.name.split('.').pop() || 'jpg'
+    const path = `${userId}-${Date.now()}.${ext}`
+
+    const { error: upErr } = await supabase.storage
+      .from('avatars')
+      .upload(path, file, { upsert: true, contentType: file.type })
+
+    if (upErr) throw upErr
+
+    // ถ้า bucket เป็น public
+    const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+    return data.publicUrl || null
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
-    if (password !== confirm) {
-      setError('รหัสผ่านไม่ตรงกัน')
-      return
+    const emailNormalized = email.trim().toLowerCase()
+    const usernameNormalized = username.trim()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailNormalized)) {
+      setError('รูปแบบอีเมลไม่ถูกต้อง'); return
     }
-    if (password.length < 6) {
-      setError('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร')
-      return
-    }
+    if (password !== confirm) { setError('รหัสผ่านไม่ตรงกัน'); return }
+    if (password.length < 6) { setError('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร'); return }
 
     try {
       setIsLoading(true)
-      const res = await fetch(process.env.NEXT_PUBLIC_API_BASE + '/user/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password, firstname, lastname, image }),
+
+      const { data, error: signErr } = await supabase.auth.signUp({
+        email: emailNormalized,
+        password,
+        options: {
+          data: {
+            username: usernameNormalized,
+            first_name: firstname.trim(),
+            last_name: lastname.trim(),
+          }
+        }
       })
+      if (signErr) throw signErr
 
-      const data = await res.json()
+      const user = data.user
+      if (!user) throw new Error('สร้างบัญชีไม่สำเร็จ')
 
-      if (!res.ok) {
-        throw new Error(data?.error || 'สมัครสมาชิกไม่สำเร็จ')
+      let avatarUrl: string | null = null
+      if (file) {
+        const ext = file.name.split('.').pop() || 'jpg'
+        const path = `${user.id}/${Date.now()}.${ext}`
+        const { error: upErr } = await supabase.storage.from('avatars')
+          .upload(path, file, { upsert: true, contentType: file.type })
+        if (upErr) throw upErr
+        const { data: pub } = supabase.storage.from('avatars').getPublicUrl(path)
+        avatarUrl = pub.publicUrl ?? null
+        await supabase.auth.updateUser({ data: { avatar_url: avatarUrl } })
       }
 
+      const { error: upsertErr } = await supabase.from('user_profiles').upsert({
+        id: user.id,
+        email: emailNormalized,
+        username: usernameNormalized,
+        first_name: firstname.trim(),
+        last_name: lastname.trim(),
+        avatar_url: avatarUrl
+      })
+      if (upsertErr) throw upsertErr
+
+      alert('สมัครสำเร็จ! ถ้าเปิดยืนยันอีเมลไว้ กรุณาเช็กกล่องจดหมายนะ 💌')
       router.push('/login')
+
     } catch (err: any) {
-      setError(err.message || 'เกิดข้อผิดพลาด')
+      // โชว์ข้อความจริงจาก Supabase จะดีมากเวลาดีบัก
+      setError(err?.message ?? 'เกิดข้อผิดพลาดขณะสมัครสมาชิก')
+      console.error('SignUp error:', err)
     } finally {
       setIsLoading(false)
     }
   }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-mint-50 to-emerald-50 flex items-center justify-center p-4 relative overflow-hidden">
@@ -68,6 +117,7 @@ export default function RegisterForm() {
 
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 border border-white/50">
           <form onSubmit={handleSubmit} className="space-y-6">
+
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 block">ชื่อผู้ใช้</label>
               <div className="relative">
@@ -168,12 +218,11 @@ export default function RegisterForm() {
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 block">รูปโปรไฟล์ (ตัวเลือก)</label>
-
               <div className="flex flex-col items-center gap-4">
                 <div className="relative w-28 h-28">
-                  {image ? (
+                  {preview ? (
                     <img
-                      src={image}
+                      src={preview}
                       alt="Profile Preview"
                       className="w-28 h-28 object-cover rounded-full border-4 border-mint-200 shadow-md"
                     />
@@ -188,7 +237,7 @@ export default function RegisterForm() {
                   htmlFor="file-upload"
                   className="cursor-pointer bg-gradient-to-r from-mint-500 to-emerald-500 text-white py-2 px-4 rounded-xl font-medium shadow hover:shadow-lg hover:from-mint-600 hover:to-emerald-600 transition-all duration-200 text-sm"
                 >
-                  {image ? "เปลี่ยนรูป" : "อัปโหลดรูป"}
+                  {preview ? "เปลี่ยนรูป" : "อัปโหลดรูป"}
                 </label>
                 <input
                   id="file-upload"
@@ -196,22 +245,15 @@ export default function RegisterForm() {
                   accept="image/*"
                   className="hidden"
                   onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setImage(reader.result as string);
-                      };
-                      reader.readAsDataURL(file);
-                    }
+                    const f = e.target.files?.[0] || null
+                    setFile(f)
+                    setPreview(f ? URL.createObjectURL(f) : null)
                   }}
                 />
               </div>
             </div>
 
-            {error && (
-              <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-2">{error}</p>
-            )}
+            {error && <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-2">{error}</p>}
 
             <button
               type="submit"

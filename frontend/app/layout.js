@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata = {
-  title: 'Lily',
+  title: 'Lily Chatbot',
 }
 
 export default function RootLayout({ children }) {
