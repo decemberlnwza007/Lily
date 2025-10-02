@@ -2,7 +2,7 @@ import { SendHorizonal, Frown, SmilePlus, Meh, Star } from 'lucide-react'
 
 export default function InputBar() {
   return (
-    <div className="sticky bottom-0 bg-white w-full md:w-8/12 shadow-xl rounded-t-xl shadow-inner">
+    <div className="sticky bottom-0 bg-white w-full md:w-8/12 shadow-xl rounded-t-xl">
       <div className="max-w-full md:max-w-3xl mx-auto px-4 py-4">
         <div className="flex flex-wrap gap-2 justify-center mb-3">
           <button className="bg-purple-200 hover:bg-purple-300 duration-300 flex items-center gap-2 text-purple-900 px-4 py-2 rounded-full cursor-pointer text-sm md:text-base">

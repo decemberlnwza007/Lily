@@ -1,5 +1,3 @@
-"use client";
-
 import { useSearchParams } from "next/navigation";
 import { ExternalLink, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -25,7 +23,7 @@ export default function InfographicDetail() {
 
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-white overflow-hidden">
           <div className="aspect-[16/9] w-full bg-emerald-50">
-            <img
+            <Image
               src={path || "/default.jpg"}
               alt={name || "info"}
               className="h-full w-full object-cover"

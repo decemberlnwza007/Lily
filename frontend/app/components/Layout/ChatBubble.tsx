@@ -6,28 +6,55 @@ import { SendHorizonal, Frown, SmilePlus, Meh, Star, User, Phone } from 'lucide-
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import './../../style/Chat.css'
-import { useSession } from 'next-auth/react'
+import { createClient } from '../../utils/supabase/client'
+
 
 type Msg = { type: 'bot' | 'user'; text: string }
+interface ApiMsg {
+  id: string
+  role: 'ai' | 'user'
+  content: string
+  created_at: string
+}
+
+interface ChatApiResponse {
+  session: {
+    id: string
+    created_at: string
+  }
+  messages: ApiMsg[]
+}
+
 interface ChatPageProps { chatId?: string }
 
 export default function ChatPage({ chatId }: ChatPageProps) {
+  const supabase = createClient()
   const nameKey = chatId ? `lily_user_name_${chatId}` : 'lily_user_name_default'
   const [userName, setUserName] = useState<string>('')
   const storageKey = chatId ? `lily_chat_history_${chatId}` : 'lily_chat_history_default'
   const [messages, setMessages] = useState<Msg[]>([
-  { type: 'bot', text: userName ? `สวัสดี ${userName} 🌿 วันนี้อยากให้ลิลลี่ช่วยเรื่องไหนดีน้า` : 'สวัสดีค่ะ มีอะไรให้ลิลลี่ช่วยมั้ยคะ?' }
-])
+    { type: 'bot', text: userName ? `สวัสดี ${userName} 🌿 วันนี้อยากให้ลิลลี่ช่วยเรื่องไหนดีน้า` : 'สวัสดีค่ะ มีอะไรให้ลิลลี่ช่วยมั้ยคะ?' }
+  ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [userId, setUserId] = useState('')
 
-  
   useEffect(() => {
-  if (messages.length === 1 && messages[0].type === 'bot') {
-    setMessages([{ type: 'bot', text: userName ? `สวัสดี ${userName} 🌿 วันนี้อยากให้ลิลลี่ช่วยเรื่องไหนดีน้า` : 'สวัสดีค่ะ มีอะไรให้ลิลลี่ช่วยมั้ยคะ?' }])
-  }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [userName])
+    const getUserId = async () => {
+      const { data } = await supabase.auth.getSession()
+      const uid = data?.session?.user?.id
+      if (uid) setUserId(uid)
+      console.log(messages)
+    }
+
+    getUserId()
+  }, []) // ← สำคัญ! ไม่งั้นจะรันทุก render
+  useEffect(() => {
+    if (messages.length === 1 && messages[0].type === 'bot') {
+      setMessages([{ type: 'bot', text: userName ? `สวัสดี ${userName} 🌿 วันนี้อยากให้ลิลลี่ช่วยเรื่องไหนดีน้า` : 'สวัสดีค่ะ มีอะไรให้ลิลลี่ช่วยมั้ยคะ?' }])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userName])
 
 
   function buildHistory(messages: { type: 'bot' | 'user'; text: string }[], limit = 8) {
@@ -50,6 +77,31 @@ export default function ChatPage({ chatId }: ChatPageProps) {
   useEffect(() => {
     try { if (userName) localStorage.setItem(nameKey, userName) } catch { }
   }, [userName, nameKey])
+
+  // get chat history
+  useEffect(() => {
+    if (!userId) return
+
+    const getChat = async () => {
+      // สมมติ fetch จาก API แล้วได้ JSON
+      const fetchChat = async (): Promise<Msg[]> => {
+        const res = await fetch(`/api/chat-history?user_id=${userId}`)
+        const data: ChatApiResponse = await res.json()
+
+        // แปลง ApiMsg[] -> Msg[]
+        return data.messages.map(msg => ({
+          type: msg.role === 'ai' ? 'bot' : 'user',
+          text: msg.content
+        }))
+      }
+
+      const msgs = await fetchChat()
+      setMessages(msgs)
+      console.log('Mapped messages:', msgs)
+    }
+
+    getChat()
+  }, [userId])
 
   function naturalizeFollowups(md: string) {
     const lines = md.split('\n');
@@ -183,7 +235,7 @@ LINK:/info|label=Infographic สุขภาพจิต
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }), // ← ส่ง prompt ที่ “อินไลน์แล้ว”
+        body: JSON.stringify({ prompt, userId, input }), // ← ส่ง prompt ที่ “อินไลน์แล้ว”
       })
       const data = await res.json()
 
@@ -262,8 +314,17 @@ function LilyAvatar({ className = 'h-8 w-8' }: { className?: string }) {
 }
 
 function Bubble({ role, text }: { role: 'bot' | 'user'; text: string }) {
+  const supabase = createClient()
   const isUser = role === 'user'
-  const { data: session } = useSession();
+  const [session, setSession] = useState(null)
+  useEffect(() => {
+    const fetchSession = async () => {
+      const { data } = await (await supabase.auth.getSession())
+      setSession(data.session)
+    }
+
+    fetchSession()
+  }, [])
   const copy = () => navigator.clipboard.writeText(text).catch(() => { })
 
   // ✅ ฟังก์ชันช่วยโทรแบบชัวร์จาก user gesture + fallback
@@ -412,18 +473,18 @@ function Bubble({ role, text }: { role: 'bot' | 'user'; text: string }) {
             <div className="h-9 w-9 rounded-full text-white flex items-center justify-center">
               {/* <User className="w-4 h-4" /> */}
               {session?.user?.image ? (
-                              <Image
-                                src={session.user.image}
-                                alt="User"
-                                width={84}
-                                height={84}
-                                className="rounded-full mx-auto mb-3 ring-4 ring-emerald-200"
-                              />
-                            ) : (
-                              <div className="w-20 h-20 rounded-full bg-emerald-200 flex items-center justify-center mx-auto mb-3">
-                                <User className="w-10 h-10 text-emerald-700" />
-                              </div>
-                            )}
+                <Image
+                  src={session?.user?.user_metadata?.picture}
+                  alt="User"
+                  width={84}
+                  height={84}
+                  className="rounded-full mx-auto mb-3 ring-4 ring-emerald-200"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-emerald-200 flex items-center justify-center mx-auto mb-3">
+                  <User className="w-10 h-10 text-emerald-700" />
+                </div>
+              )}
             </div>
           </div>
         )}

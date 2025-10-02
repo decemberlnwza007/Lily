@@ -1,0 +1,13 @@
+{
+	// 🖱️✨ Enables smooth scrolling inside the editor
+	"editor.smoothScrolling": true,
+
+	// 📜🧈 Enables smooth scrolling in lists (Explorer, Search, Terminal, etc.)
+	"workbench.list.smoothScrolling": true,
+
+	// 🔥| Sets cursor blinking animation style to "expand" (grows/shrinks while blinking)
+	"editor.cursorBlinking": "expand",
+
+	// 🪄➡️ Makes the caret move smoothly (animated) instead of instantly jumping
+	"editor.cursorSmoothCaretAnimation": "on",
+}

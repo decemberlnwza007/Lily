@@ -1,6 +1,5 @@
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
-import { SessionProvider } from 'next-auth/react'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -17,12 +16,13 @@ export const metadata = {
 }
 
 export default function RootLayout({ children }) {
+  const ws = new WebSocket("ws://localhost:3001/ws");
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SessionProvider>{children}</SessionProvider>
+        {children}
       </body>
     </html>
   )
