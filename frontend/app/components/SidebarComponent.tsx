@@ -2,25 +2,22 @@
 
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import { Session } from '@supabase/supabase-js'
 import { usePathname } from 'next/navigation'
-import { useSession, signOut } from 'next-auth/react'
 import {
-  Home,
   MessageCircleMore,
   LogOut,
   Menu,
   Settings,
   X,
   User,
-  FileImage,
-  Heart,
   FileText,
-  Plus,
   HelpCircle
 } from 'lucide-react'
+import { createClient } from '../utils/supabase/client'
 
 const navItems = [
   { href: '/', label: 'แชท', icon: MessageCircleMore },
@@ -35,11 +32,53 @@ type ChatItem = {
 }
 
 type SidebarLayoutProps = {
-  children?: ReactNode  
+  children?: ReactNode
 }
 
 export default function SidebarLayout() {
-  const { data: session } = useSession()
+  const supabase = createClient()
+  const [session, setSession] = useState<Session | null>(null)
+  const [Mychats, setMyChats] = useState([])
+
+  // โหลด session
+  useEffect(() => {
+    const fetchSession = async () => {
+      const { data } = await supabase.auth.getSession()
+      setSession(data.session)
+    }
+    fetchSession()
+  }, [])
+
+  // โหลด chats จาก DB
+  useEffect(() => {
+    if (!session) return
+
+    const fetchChats = async () => {
+      const { data, error } = await supabase
+        .from('chat_sessions')
+        .select('*')
+
+      setMyChats(data || [])
+      console.log(data)
+    }
+
+    fetchChats()
+  }, [session])
+
+  // เพิ่ม chat ใหม่
+  const addChat = async (title: string) => {
+    if (!session) return
+    const { data, error } = await supabase
+      .from('chat_sessions')
+      .insert([{
+        title: 'test', 
+        user_id: session.user.id
+      }])
+      .select()
+    setChats(prev => [data[0], ...prev])
+  }
+
+
   const pathname = usePathname()
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
@@ -61,8 +100,9 @@ export default function SidebarLayout() {
   }, [chats])
 
   const handleLogout = () => {
-    signOut()
+    supabase.auth.signOut()
     setShowProfileModal(false)
+    redirect('/')
   }
 
   const NavLink = ({ href, label, Icon }: any) => {
@@ -76,6 +116,7 @@ export default function SidebarLayout() {
       }
       setIsOpen(false)
     }
+
 
     return (
       <Link
@@ -189,15 +230,14 @@ export default function SidebarLayout() {
             </div>
           )}
         </nav>
-
         <div className="relative z-10 p-6 mt-auto">
           <div
             className="flex items-center gap-3 p-3 rounded-2xl border border-white/30 bg-white/40 backdrop-blur-md cursor-pointer hover:bg-white/60 transition-all shadow-sm"
             onClick={() => setShowProfileModal(true)}
           >
-            {session?.user?.image ? (
+            {session?.user?.user_metadata?.picture ? (
               <Image
-                src={session.user.image}
+                src={session?.user?.user_metadata?.picture}
                 alt="User avatar"
                 width={44}
                 height={44}
@@ -210,7 +250,7 @@ export default function SidebarLayout() {
             )}
             <div className="min-w-0">
               <p className="text-emerald-950 font-semibold truncate">
-                {session?.user?.name || 'ผู้ใช้งาน'}
+                {session?.user?.user_metadata?.name || 'ผู้ใช้งาน'}
               </p>
               <p className="text-emerald-900/70 text-xs truncate">
                 {session?.user?.email || 'no-email'}
@@ -218,6 +258,14 @@ export default function SidebarLayout() {
             </div>
           </div>
         </div>
+        <button
+          onClick={async () => {
+            const data = await supabase.auth.getSession()
+            console.log(data.data.session)
+          }}
+        >
+          CLICK
+        </button>
       </aside>
 
       {showProfileModal && (
@@ -234,9 +282,9 @@ export default function SidebarLayout() {
             </div>
 
             <div className="text-center mb-6">
-              {session?.user?.image ? (
+              {session?.user?.user_metadata?.picture ? (
                 <Image
-                  src={session.user.image}
+                  src={session?.user?.user_metadata?.picture}
                   alt="User"
                   width={84}
                   height={84}
@@ -248,7 +296,7 @@ export default function SidebarLayout() {
                 </div>
               )}
               <h3 className="text-lg font-semibold text-gray-800">
-                {session?.user?.name || 'ผู้ใช้งาน'}
+                {session?.user?.user_metadata?.name || 'ผู้ใช้งาน'}
               </h3>
               <p className="text-gray-600 text-sm">
                 {session?.user?.email || 'ไม่มีอีเมล'}

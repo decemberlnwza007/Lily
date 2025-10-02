@@ -1,51 +1,46 @@
 'use client'
 
-import { signIn, useSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
 import { redirect } from 'next/navigation'
-import { Eye, EyeOff, Mail, Lock, Heart, Flower } from 'lucide-react'
-
+import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
+import { createClient } from '../utils/supabase/client'
 import '../style/login.css'
 
 export default function AuthButton() {
-  const { data: session, status } = useSession()
+  const supabase = createClient()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
-  useEffect(() => {
-    if (status !== 'loading' && session?.user) {
-      redirect('/')
-    }
-  }, [session, status])
 
-  if (status === 'loading') {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="animate-pulse text-gray-500 text-lg"><svg className="container"><rect className="boxes"></rect></svg>
-        </p>
-      </div>
-    )
-  }
+  useEffect(() => {
+    const checkSession = async () => {
+      const data = await supabase.auth.getSession()
+      if (data.data.session) {
+        redirect('/')
+      }
+    }
+    checkSession()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    const res = await fetch('/api/user/save', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    })
+    // const res = await fetch('/api/user/save', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({ email, password }),
+    // })
 
-    const data = await res.json()
+    // const data = await res.json()
 
-    if (res.ok) {
-      signIn('credentials', { email, password })
-    } else {
-      alert(data.error || 'เกิดข้อผิดพลาด')
-    }
+    // if (res.ok) {
+    //   signIn('credentials', { email, password })
+    // } else {
+    //   alert(data.error || 'เกิดข้อผิดพลาด')
+    // }
   }
 
   return (
@@ -151,7 +146,10 @@ export default function AuthButton() {
             <div className="pt-2">
               <button
                 type="button"
-                onClick={() => signIn('google')}
+                onClick={() => supabase.auth.signInWithOAuth({
+                  provider: 'google', options: {
+                  }
+                })}
                 className="flex items-center cursor-pointer justify-center gap-3 bg-white border border-mint-200 text-mint-600 font-semibold px-6 py-3 rounded-2xl hover:bg-mint-50 transition w-full hover:bg-green-200"
               >
                 <svg

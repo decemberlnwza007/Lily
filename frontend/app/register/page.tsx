@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, Mail, Lock, User, Image as ImageIcon } from 'lucide-react'
-import { supabase } from '../lib/supabaseClient'
+import { createClient } from '../utils/supabase/client'
 import '../style/login.css'
 
 export default function RegisterForm() {
+  const supabase = createClient()
   const router = useRouter()
   const [username, setUsername] = useState('')
   const [firstname, setFirstname] = useState('')
