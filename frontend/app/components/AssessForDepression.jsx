@@ -61,13 +61,13 @@ export default function AssessForDespression() {
           0
         )
 
-        if (totalScore === 2) {
+        if (totalScore >= 1) {
           successAlert(
             'คุณเป็นผู้มีความเสี่ยง หรือมีแนวโน้มที่จะเป็นโรคซึมเศร้ากดต่อไปเพื่อทำแบบประเมินต่อไป',
             '/estimate'
           )
-        } else if (totalScore <= 1) {
-          successAlert('ทำแบบประเมินสำเร็จ')
+        } else if (totalScore == 0) {
+          successAlert('ทำแบบประเมินสำเร็จ', '/')
         }
       }
     }, 600)

@@ -87,6 +87,8 @@ export default function EstimateForm() {
           if (result.isConfirmed) {
             if (totalScore >= 7) {
               router.push('/eightquestion')
+            }else {
+              router.push('/')
             }
           }
         })
