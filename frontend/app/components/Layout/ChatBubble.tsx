@@ -37,47 +37,48 @@ export default function ChatPage({ chatId }: ChatPageProps) {
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
-const [userId, setUserId] = useState<string>('')
-const [MyQ, setMyQ] = useState<any>(null)
+  const [userId, setUserId] = useState<string>('')
+  const [MyQ, setMyQ] = useState<any>(null)
+  const [onlyUserChat, setOnlyUserChat] = useState<Msg[]>([])
 
-// 1) ดึง session ครั้งแรกตอน mount
-useEffect(() => {
-  const loadSession = async () => {
-    const { data, error } = await supabase.auth.getSession()
-    if (error) {
-      console.error('getSession error:', error)
-      return
+  // 1) ดึง session ครั้งแรกตอน mount
+  useEffect(() => {
+    const loadSession = async () => {
+      const { data, error } = await supabase.auth.getSession()
+      if (error) {
+        console.error('getSession error:', error)
+        return
+      }
+      const uid = data?.session?.user?.id
+      console.log('session uid:', uid) // ✅ log uid ที่ได้จริง
+      if (uid) setUserId(uid)
     }
-    const uid = data?.session?.user?.id
-    console.log('session uid:', uid) // ✅ log uid ที่ได้จริง
-    if (uid) setUserId(uid)
-  }
-  loadSession()
-}, []) // รันครั้งเดียวพอ
+    loadSession()
+  }, []) // รันครั้งเดียวพอ
 
-// 2) สังเกตค่า userId เปลี่ยนจริงไหม
-// 3) ดึงโปรไฟล์เมื่อมี userId แล้ว
-useEffect(() => {
-  if (!userId) return
+  // 2) สังเกตค่า userId เปลี่ยนจริงไหม
+  // 3) ดึงโปรไฟล์เมื่อมี userId แล้ว
+  useEffect(() => {
+    if (!userId) return
 
-  const getUserData = async () => {
-    const { data, error } = await supabase
-      // .schema('public') // จะใส่ก็ได้
-      .from('profiles')   // ✅ ใช้ชื่อ table ตรง ๆ
-      .select('*')
-      .eq('id', userId)
-      .single()
+    const getUserData = async () => {
+      const { data, error } = await supabase
+        // .schema('public') // จะใส่ก็ได้
+        .from('profiles')   // ✅ ใช้ชื่อ table ตรง ๆ
+        .select('*')
+        .eq('id', userId)
+        .single()
 
-    if (error) {
-      console.error('profiles query error:', error)
-      return
+      if (error) {
+        console.error('profiles query error:', error)
+        return
+      }
+      console.log('profile data:', data) // ✅ เห็นก่อน set
+      setMyQ(data) // ✅ เก็บ object ลง state
     }
-    console.log('profile data:', data) // ✅ เห็นก่อน set
-    setMyQ(data) // ✅ เก็บ object ลง state
-  }
 
-  getUserData()
-}, [userId]) // ✅ รันเมื่อ userId พร้อม
+    getUserData()
+  }, [userId]) // ✅ รันเมื่อ userId พร้อม
 
 
   useEffect(() => {
@@ -114,12 +115,10 @@ useEffect(() => {
     if (!userId) return
 
     const getChat = async () => {
-      // สมมติ fetch จาก API แล้วได้ JSON
       const fetchChat = async (): Promise<Msg[]> => {
         const res = await fetch(`/api/chat-history?user_id=${userId}`)
         const data: ChatApiResponse = await res.json()
 
-        // แปลง ApiMsg[] -> Msg[]
         return data.messages.map(msg => ({
           type: msg.role === 'ai' ? 'bot' : 'user',
           text: msg.content
@@ -128,11 +127,17 @@ useEffect(() => {
 
       const msgs = await fetchChat()
       setMessages(msgs)
+
+      const onlyUser = msgs.filter(msg => msg.type === 'user')
+      setOnlyUserChat(onlyUser)
+
       console.log('Mapped messages:', msgs)
+      console.log('Only user messages:', onlyUser)
     }
 
     getChat()
   }, [userId])
+
 
   function naturalizeFollowups(md: string) {
     const lines = md.split('\n');
@@ -225,7 +230,6 @@ useEffect(() => {
 
 
 ให้ดูแลผู้ป่วยตามระดับของแบบประเมิน 8q มีค่าเป็น ${MyQ?.status_8q} และ 9q ${MyQ?.status_8q} โดยมีผลดังนี้ 
-
 [emoji style guide]
 - จำนวน: ≤ 2–3 ต่อย่อหน้า, ไม่ต้องใส่ท้ายทุกบรรทัด
 - ตำแหน่ง: เปิด/ปิดประโยคสำคัญ หรือท้ายหัวข้อสั้น ๆ เท่านั้น
@@ -245,7 +249,8 @@ allow_contact_block=${contactIntent ? 'true' : 'false'}
 - ถ้าจะใช้หัวข้อ ให้ใช้เท่าที่จำเป็นและสั้น
 
 [history]
-${history}
+
+user: {${onlyUserChat.map(msg => msg.text).join('\n')},}
 
 [user]
 ${text}
@@ -266,13 +271,13 @@ LINK:/info|label=Infographic สุขภาพจิต
 ---
 `;
 
-const sent = text.trim()
+      const sent = text.trim()
 
 
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, userId, input: sent}), // ← ส่ง prompt ที่ “อินไลน์แล้ว”
+        body: JSON.stringify({ prompt, userId, input: sent }), // ← ส่ง prompt ที่ “อินไลน์แล้ว”
       })
       const data = await res.json()
 
@@ -288,7 +293,6 @@ const sent = text.trim()
 
 
   const handleQuickSelect = (t: string) => handleSend(t)
-
   return (
     <div className="relative h-dvh w-full bg-white text-slate-900">
       <div className="pointer-events-none absolute inset-0 -z-10">
@@ -510,7 +514,7 @@ function Bubble({ role, text }: { role: 'bot' | 'user'; text: string }) {
             <div className="h-9 w-9 rounded-full text-white flex items-center justify-center">
               {/* <User className="w-4 h-4" /> */}
 
-      
+
               {session?.user?.image ? (
                 <Image
                   src={session?.user?.user_metadata?.picture}

@@ -11,7 +11,6 @@ import {
   MessageCircleMore,
   LogOut,
   Menu,
-  Settings,
   X,
   User,
   FileText,
@@ -48,35 +47,6 @@ export default function SidebarLayout() {
     }
     fetchSession()
   }, [])
-
-  // โหลด chats จาก DB
-  useEffect(() => {
-    if (!session) return
-
-    const fetchChats = async () => {
-      const { data, error } = await supabase
-        .from('chat_sessions')
-        .select('*')
-
-      setMyChats(data || [])
-      console.log(data)
-    }
-
-    fetchChats()
-  }, [session])
-
-  // เพิ่ม chat ใหม่
-  const addChat = async (title: string) => {
-    if (!session) return
-    const { data, error } = await supabase
-      .from('chat_sessions')
-      .insert([{
-        title: 'test', 
-        user_id: session.user.id
-      }])
-      .select()
-    setChats(prev => [data[0], ...prev])
-  }
 
 
   const pathname = usePathname()
