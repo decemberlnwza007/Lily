@@ -21,7 +21,7 @@ export async function GET(req: Request) {
         // 🧠 1) ดึง session ล่าสุดของ user
         const { data: history, error: historyError } = await (await supabase)
             .from('chat_history')
-            .select('id, created_at')
+            .select('id, created_at', )
             .eq('user_id', userId)
             .order('created_at', { ascending: false })
             .limit(1)

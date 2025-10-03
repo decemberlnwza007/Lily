@@ -82,7 +82,7 @@ export default function AssessForDespression() {
   const progress = ((currentQuestion + 1) / questions.length) * 100
 
   return (
-    <div className="h-full min-h-0 bg-gradient-to-br from-mint-50 to-emerald-50 p-4 relative overflow-hidden">
+    <div className="h-full w-full min-h-0 bg-gradient-to-br from-mint-50 to-emerald-50 p-4 relative overflow-hidden">
       <div className="absolute top-20 left-10 w-64 h-64 bg-mint-50/50 rounded-full blur-3xl"></div>
       <div className="absolute bottom-20 right-10 w-80 h-80 bg-emerald-50/50 rounded-full blur-3xl"></div>
 
