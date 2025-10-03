@@ -75,7 +75,10 @@ export async function register(formData: FormData) {
             first_name: data.firstname,
             last_name: data.lastname,
             email: data.email,
-            avatar_url: avatarUrl
+            avatar_url: avatarUrl,
+            status_8q: null,
+            status_9q: null
+
         })
 
     if (profileError) {
