@@ -1,6 +1,9 @@
+'use client'
+
 import { useSearchParams } from "next/navigation";
 import { ExternalLink, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function InfographicDetail() {
   const params = useSearchParams();

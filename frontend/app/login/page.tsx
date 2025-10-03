@@ -110,7 +110,7 @@ export default function AuthPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-mint-500 to-emerald-500 text-white py-3 px-6 rounded-2xl font-medium shadow-lg hover:shadow-xl hover:from-mint-600 hover:to-emerald-600 transform hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-mint-300 focus:ring-offset-2"
+              className="w-full bg-green-400 text-white py-3 px-6 rounded-2xl font-medium shadow-lg hover:shadow-xl hover:from-mint-600 hover:to-emerald-600 transform hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-mint-300 focus:ring-offset-2"
             >
               {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ Lily'}
             </button>
@@ -137,7 +137,7 @@ export default function AuthPage() {
               <button
                 type="button"
                 onClick={handleGoogleLogin}
-                className="flex items-center justify-center gap-3 bg-white border border-mint-200 text-mint-600 font-semibold px-6 py-3 rounded-2xl hover:bg-mint-50 transition w-full hover:bg-green-200"
+                className="flex items-center cursor-pointer justify-center gap-3 bg-white border border-mint-200 text-mint-600 font-semibold px-6 py-3 rounded-2xl hover:bg-mint-50 transition w-full hover:bg-green-200"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 48 48" fill="none">
                   <path

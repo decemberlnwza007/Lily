@@ -231,11 +231,13 @@ LINK:/info|label=Infographic สุขภาพจิต
 ---
 `;
 
+const sent = text.trim()
+
 
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, userId, input }), // ← ส่ง prompt ที่ “อินไลน์แล้ว”
+        body: JSON.stringify({ prompt, userId, input: sent}), // ← ส่ง prompt ที่ “อินไลน์แล้ว”
       })
       const data = await res.json()
 
