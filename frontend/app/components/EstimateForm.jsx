@@ -112,6 +112,8 @@ export default function EstimateForm() {
                 console.log('✅ อัปเดต status_9q สำเร็จแล้ว!', resultText)
               }
               router.push('/eightquestion')
+            }else {
+              router.push('/')
             }
           }
         })
