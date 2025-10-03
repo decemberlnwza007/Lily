@@ -33,12 +33,13 @@ export default function ChatPage({ chatId }: ChatPageProps) {
   const [userName, setUserName] = useState<string>('')
   const storageKey = chatId ? `lily_chat_history_${chatId}` : 'lily_chat_history_default'
   const [messages, setMessages] = useState<Msg[]>([
-  { type: 'bot',
-    text: userName ? `สวัสดี ${userName} 🌿 วันนี้อยากให้ลิลลี่ช่วยเรื่องไหนดีน้า` : 'สวัสดีค่ะ มีอะไรให้ลิลลี่ช่วยมั้ยคะ?',
-    ts: Date.now(),
-    kind: 'greeting' // ✅
-  }
-])
+    {
+      type: 'bot',
+      text: userName ? `สวัสดี ${userName} 🌿 วันนี้อยากให้ลิลลี่ช่วยเรื่องไหนดีน้า` : 'สวัสดีค่ะ มีอะไรให้ลิลลี่ช่วยมั้ยคะ?',
+      ts: Date.now(),
+      kind: 'greeting' // ✅
+    }
+  ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [userId, setUserId] = useState<string>('')
@@ -99,24 +100,21 @@ export default function ChatPage({ chatId }: ChatPageProps) {
   }
 
   useEffect(() => {
-  try {
-    const raw = localStorage.getItem(storageKey)
-    if (!raw) return                          // ❗️ไม่มี ก็อย่าทับ greeting
-    const arr: any[] = JSON.parse(raw)
-    if (!Array.isArray(arr) || arr.length === 0) return // ❗️ว่าง ก็อย่าทับ
-
-    const fixed = arr.map(m => ({ ...m, ts: m.ts ?? Date.now() }))
-    fixed.sort((a, b) => a.ts - b.ts)
-    setMessages(fixed)
-  } catch {}
-}, [storageKey])
+    try {
+      const raw = localStorage.getItem(storageKey)
+      if (!raw) return
+      const arr: any[] = JSON.parse(raw)
+      // migrate: ใส่ ts ถ้ายังไม่มี
+      const fixed = arr.map(m => ({ ...m, ts: m.ts ?? Date.now() }))
+      // sort ให้ชัวร์
+      fixed.sort((a, b) => a.ts - b.ts)
+      setMessages(fixed)
+    } catch { }
+  }, [storageKey])
 
   useEffect(() => {
-  try {
-    const sorted = [...messages].sort((a,b) => a.ts - b.ts)
-    localStorage.setItem(storageKey, JSON.stringify(sorted))
-  } catch {}
-}, [messages, storageKey])
+    try { localStorage.setItem(storageKey, JSON.stringify(messages)) } catch { }
+  }, [messages, storageKey])
 
   useEffect(() => {
     try { const raw = localStorage.getItem(nameKey); if (raw) setUserName(raw) } catch { }
@@ -136,12 +134,15 @@ export default function ChatPage({ chatId }: ChatPageProps) {
         const res = await fetch(`/api/chat-history?user_id=${userId}`)
         const data: ChatApiResponse = await res.json()
 
-        return data.messages.map(msg => ({
-          type: msg.role === 'ai' ? 'bot' : 'user',
-          text: msg.content,
-          ts: Date.now()
-        }))
+        return data.messages
+          .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+          .map((msg): Msg => ({
+            type: msg.role === 'ai' ? 'bot' : 'user',
+            text: msg.content,
+            ts: new Date(msg.created_at).getTime(),   // ✅ ใช้เวลาจริงจาก server
+          }))
       }
+
 
       const msgs = await fetchChat()
       setMessages(msgs)
