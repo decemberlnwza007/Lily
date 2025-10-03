@@ -264,7 +264,7 @@ export default function SidebarLayout() {
             console.log(data.data.session)
           }}
         >
-          CLICK
+          
         </button>
       </aside>
 
