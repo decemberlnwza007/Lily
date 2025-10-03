@@ -1,15 +1,29 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
 
 import './../style/login.css'
+import { createClient } from '../utils/supabase/client'
 
 export default function EstimateForm() {
+  const supabase = createClient()
   const router = useRouter();
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState({})
+
+  const [userId, setUserId] = useState('')
+  useEffect(() => {
+    const getUserId = async () => {
+      const { data } = await supabase.auth.getSession()
+      const uid = data?.session?.user?.id
+      if (uid) setUserId(uid)
+      console.log(uid)
+    }
+
+    getUserId()
+  }, []) // ← สำคัญ! ไม่งั้นจะรันทุก render
 
   const questions = [
     'เบื่อ ไม่สนใจอยากทำอะไร',
@@ -83,9 +97,20 @@ export default function EstimateForm() {
             popup: 'rounded-xl p-6',
           },
           buttonsStyling: false,
-        }).then((result) => {
+        }).then(async (result) => {
           if (result.isConfirmed) {
             if (totalScore >= 7) {
+              // ✅ อัปเดต status_8q ใน profiles โดยใช้ resultText โดยตรง
+              const { error: updateError } = await supabase
+                .from('profiles')
+                .update({ status_9q: resultText })
+                .eq('id', userId)
+
+              if (updateError) {
+                console.error('❌ อัปเดต status_9q ล้มเหลว:', updateError)
+              } else {
+                console.log('✅ อัปเดต status_9q สำเร็จแล้ว!', resultText)
+              }
               router.push('/eightquestion')
             }
           }

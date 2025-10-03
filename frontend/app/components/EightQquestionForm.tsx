@@ -1,16 +1,29 @@
 'use client'
 
-import { useState } from 'react'
+
 import { useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
+import { useState, useEffect } from 'react'
 
 import './../style/login.css'
+import { createClient } from '../utils/supabase/client'
 
 export default function EightQquestionForm() {
+    const supabase = createClient()
     const router = useRouter()
     const [currentQuestion, setCurrentQuestion] = useState(0)
     const [answers, setAnswers] = useState({})
+    const [userId, setUserId] = useState('')
+    useEffect(() => {
+        const getUserId = async () => {
+            const { data } = await supabase.auth.getSession()
+            const uid = data?.session?.user?.id
+            if (uid) setUserId(uid)
+            console.log(uid)
+        }
 
+        getUserId()
+    }, []) // ← สำคัญ! ไม่งั้นจะรันทุก render
     const questions = [
         {
             question: 'คิดอยากตาย หรือ คิดว่าตายไปจะดีกว่า',
@@ -31,7 +44,7 @@ export default function EightQquestionForm() {
             question: 'ท่านสามารถควบคุมความอยากฆ่าตัวตายที่ท่านคิดอยู่นั้นได้หรือไม่ หรือบอกได้ไหมว่าคงจะไม่ทำตามความคิดนั้นในขณะนี้',
             no: 0,
             yes: 8,
-            conditional: true, 
+            conditional: true,
         },
         {
             question: 'มีแผนการที่จะฆ่าตัวตาย',
@@ -75,7 +88,7 @@ export default function EightQquestionForm() {
             let nextQuestionIndex = currentQuestion + 1
 
             if (
-                question.conditional !== true && 
+                question.conditional !== true &&
                 currentQuestion === 2 &&
                 valueKey === 'yes'
             ) {
@@ -98,9 +111,12 @@ export default function EightQquestionForm() {
             }
 
             if (nextQuestionIndex >= questions.length) {
-                const totalScore = Object.values(newAnswers).reduce((sum, val) => sum + val, 0)
+                const totalScore = Object.values(newAnswers)
+                    .map(v => Number(v))
+                    .reduce((sum, val) => sum + val, 0)
 
                 let resultText = ''
+
                 if (totalScore === 0) {
                     resultText = 'ไม่มีแนวโน้มฆ่าตัวตายในปัจจุบัน'
                 } else if (totalScore >= 1 && totalScore <= 8) {
@@ -108,9 +124,13 @@ export default function EightQquestionForm() {
                 } else if (totalScore >= 9 && totalScore <= 16) {
                     resultText = 'มีแนวโน้มที่จะฆ่าตัวตายในปัจจุบัน ระดับปานกลาง'
                 } else if (totalScore >= 17) {
-                    resultText = 'มีแนวโน้มที่จะฆ่าตัวตายในปัจจุบัน ระดับรุนแรง\nคุณสามารถติดต่อสายด่วนสุขภาพจิต 1323 ได้ตลอด 24 ชั่วโมงเพื่อรับคำปรึกษา'
+                    resultText = 'มีแนวโน้มที่จะฆ่าตัวตายในปัจจุบัน ระดับรุนแรง' //\nคุณสามารถติดต่อสายด่วนสุขภาพจิต 1323 ได้ตลอด 24 ชั่วโมงเพื่อรับคำปรึกษา'
                 }
 
+
+                console.log("result now:", resultText)
+
+                console.log(`userId: ${userId}`)
                 Swal.fire({
                     icon: 'info',
                     title: 'การประเมินเสร็จสิ้น',
@@ -121,7 +141,21 @@ export default function EightQquestionForm() {
                         popup: 'rounded-xl p-6',
                     },
                     buttonsStyling: false,
-                }).then(() => {
+                }).then(async () => {
+
+                    // ✅ อัปเดต status_8q ใน profiles โดยใช้ resultText โดยตรง
+                    const { error: updateError } = await supabase
+                        .from('profiles')
+                        .update({ status_8q: resultText })
+                        .eq('id', userId)
+
+                    if (updateError) {
+                        console.error('❌ อัปเดต status_8q ล้มเหลว:', updateError)
+                    } else {
+                        console.log('✅ อัปเดต status_8q สำเร็จแล้ว!', resultText)
+                    }
+
+                    // ✅ กลับไปหน้าหลัก
                     router.push('/')
                 })
             } else {
@@ -139,7 +173,10 @@ export default function EightQquestionForm() {
         }
     }
 
+
+    // ✅ คำนวณ progress แยกออกมา
     const progress = ((currentQuestion + 1) / questions.length) * 100
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-mint-50 to-emerald-50 p-4 relative overflow-hidden">
@@ -227,10 +264,10 @@ export default function EightQquestionForm() {
                             <div
                                 key={i}
                                 className={`w-3 h-3 rounded-full transition-all duration-300 ${i === currentQuestion
-                                        ? 'bg-mint-500 scale-125'
-                                        : answers[i] !== undefined
-                                            ? 'bg-mint-300'
-                                            : 'bg-gray-200'
+                                    ? 'bg-mint-500 scale-125'
+                                    : answers[i] !== undefined
+                                        ? 'bg-mint-300'
+                                        : 'bg-gray-200'
                                     }`}
                             ></div>
                         ))}

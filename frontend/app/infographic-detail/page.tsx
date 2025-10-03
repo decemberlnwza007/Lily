@@ -16,17 +16,17 @@ export default function InfographicDetail() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-100 py-10 px-4 sm:px-6">
       <div className="max-w-5xl mx-auto">
-        <Link
+        <a
           href="/info"
           className="inline-flex items-center gap-2 text-emerald-700 hover:text-emerald-900 transition-colors mb-6"
         >
           <ArrowLeft className="h-5 w-5" />
           กลับไปหน้ารวม Infographic
-        </Link>
+        </a>
 
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-white overflow-hidden">
           <div className="aspect-[16/9] w-full bg-emerald-50">
-            <Image
+            <img
               src={path || "/default.jpg"}
               alt={name || "info"}
               className="h-full w-full object-cover"
