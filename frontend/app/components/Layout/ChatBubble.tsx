@@ -9,7 +9,7 @@ import './../../style/Chat.css'
 import { createClient } from '../../utils/supabase/client'
 
 
-type Msg = { type: 'bot' | 'user'; text: string }
+type Msg = { type: 'bot' | 'user'; text: string; ts: number; kind?: 'greeting' }
 interface ApiMsg {
   id: string
   role: 'ai' | 'user'
@@ -33,8 +33,12 @@ export default function ChatPage({ chatId }: ChatPageProps) {
   const [userName, setUserName] = useState<string>('')
   const storageKey = chatId ? `lily_chat_history_${chatId}` : 'lily_chat_history_default'
   const [messages, setMessages] = useState<Msg[]>([
-    { type: 'bot', text: userName ? `สวัสดี ${userName} 🌿 วันนี้อยากให้ลิลลี่ช่วยเรื่องไหนดีน้า` : 'สวัสดีค่ะ มีอะไรให้ลิลลี่ช่วยมั้ยคะ?' }
-  ])
+  { type: 'bot',
+    text: userName ? `สวัสดี ${userName} 🌿 วันนี้อยากให้ลิลลี่ช่วยเรื่องไหนดีน้า` : 'สวัสดีค่ะ มีอะไรให้ลิลลี่ช่วยมั้ยคะ?',
+    ts: Date.now(),
+    kind: 'greeting' // ✅
+  }
+])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [userId, setUserId] = useState<string>('')
@@ -83,7 +87,7 @@ export default function ChatPage({ chatId }: ChatPageProps) {
 
   useEffect(() => {
     if (messages.length === 1 && messages[0].type === 'bot') {
-      setMessages([{ type: 'bot', text: userName ? `สวัสดี ${userName} 🌿 วันนี้อยากให้ลิลลี่ช่วยเรื่องไหนดีน้า` : 'สวัสดีค่ะ มีอะไรให้ลิลลี่ช่วยมั้ยคะ?' }])
+      setMessages([{ type: 'bot', text: userName ? `สวัสดี ${userName} 🌿 วันนี้อยากให้ลิลลี่ช่วยเรื่องไหนดีน้า` : 'สวัสดีค่ะ มีอะไรให้ลิลลี่ช่วยมั้ยคะ?', ts: Date.now() }])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userName])
@@ -95,11 +99,24 @@ export default function ChatPage({ chatId }: ChatPageProps) {
   }
 
   useEffect(() => {
-    try { const raw = localStorage.getItem(storageKey); if (raw) setMessages(JSON.parse(raw)) } catch { }
-  }, [storageKey])
+  try {
+    const raw = localStorage.getItem(storageKey)
+    if (!raw) return                          // ❗️ไม่มี ก็อย่าทับ greeting
+    const arr: any[] = JSON.parse(raw)
+    if (!Array.isArray(arr) || arr.length === 0) return // ❗️ว่าง ก็อย่าทับ
+
+    const fixed = arr.map(m => ({ ...m, ts: m.ts ?? Date.now() }))
+    fixed.sort((a, b) => a.ts - b.ts)
+    setMessages(fixed)
+  } catch {}
+}, [storageKey])
+
   useEffect(() => {
-    try { localStorage.setItem(storageKey, JSON.stringify(messages)) } catch { }
-  }, [messages, storageKey])
+  try {
+    const sorted = [...messages].sort((a,b) => a.ts - b.ts)
+    localStorage.setItem(storageKey, JSON.stringify(sorted))
+  } catch {}
+}, [messages, storageKey])
 
   useEffect(() => {
     try { const raw = localStorage.getItem(nameKey); if (raw) setUserName(raw) } catch { }
@@ -121,7 +138,8 @@ export default function ChatPage({ chatId }: ChatPageProps) {
 
         return data.messages.map(msg => ({
           type: msg.role === 'ai' ? 'bot' : 'user',
-          text: msg.content
+          text: msg.content,
+          ts: Date.now()
         }))
       }
 
@@ -212,7 +230,7 @@ export default function ChatPage({ chatId }: ChatPageProps) {
 
   const handleSend = async (text: string) => {
     if (!text.trim()) return
-    setMessages(p => [...p, { type: 'user', text }])
+    setMessages(p => [...p, { type: 'user', text, ts: Date.now() }])
     setInput(''); setLoading(true)
 
     try {
@@ -284,9 +302,9 @@ LINK:/info|label=Infographic สุขภาพจิต
       // post-process: ถ้าไม่ได้ถามเรื่องการติดต่อ ให้ตัดบล็อกทิ้งกันพลาด
       const finalReply = sanitizeReply(data.reply, contactIntent)
 
-      setMessages(p => [...p, { type: 'bot', text: finalReply }])
+      setMessages(p => [...p, { type: 'bot', text: finalReply, ts: Date.now() }])
     } catch {
-      setMessages(p => [...p, { type: 'bot', text: 'มีปัญหานิดหน่อย ลองใหม่อีกทีน้า' }])
+      setMessages(p => [...p, { type: 'bot', text: 'มีปัญหานิดหน่อย ลองใหม่อีกทีน้า', ts: Date.now() }])
     } finally { setLoading(false) }
   }
 
