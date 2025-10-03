@@ -102,7 +102,7 @@ export default function SidebarLayout() {
   const handleLogout = () => {
     supabase.auth.signOut()
     setShowProfileModal(false)
-    redirect('/')
+    redirect('/login')
   }
 
   const NavLink = ({ href, label, Icon }: any) => {
