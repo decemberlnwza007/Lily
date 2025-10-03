@@ -472,6 +472,8 @@ function Bubble({ role, text }: { role: 'bot' | 'user'; text: string }) {
           <div className="mt-1.5 shrink-0">
             <div className="h-9 w-9 rounded-full text-white flex items-center justify-center">
               {/* <User className="w-4 h-4" /> */}
+
+      
               {session?.user?.image ? (
                 <Image
                   src={session?.user?.user_metadata?.picture}
@@ -481,8 +483,8 @@ function Bubble({ role, text }: { role: 'bot' | 'user'; text: string }) {
                   className="rounded-full mx-auto mb-3 ring-4 ring-emerald-200"
                 />
               ) : (
-                <div className="w-20 h-20 rounded-full bg-emerald-200 flex items-center justify-center mx-auto mb-3">
-                  <User className="w-10 h-10 text-emerald-700" />
+                <div className="w-10 h-10 rounded-full bg-emerald-200 flex items-center justify-center mx-auto mb-3">
+                  <User className="w-5 h-5 text-emerald-700" />
                 </div>
               )}
             </div>
