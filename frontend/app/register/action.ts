@@ -76,8 +76,14 @@ export async function register(formData: FormData) {
             last_name: data.lastname,
             email: data.email,
             avatar_url: avatarUrl,
+<<<<<<< HEAD
             status_9q: '',
             status_8q:''
+=======
+            status_8q: null,
+            status_9q: null
+
+>>>>>>> c0ed3c8f5f08190ec1c541bad4210bbb6ce98140
         })
 
     if (profileError) {
