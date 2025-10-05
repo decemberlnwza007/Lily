@@ -76,7 +76,14 @@ export async function POST(req: Request) {
 
       historyId = newHistory.id
     }
+    // ✅ 2) บันทึกเนื้อหาจาก User ลง chat_content
+    const { error: tError } = await (await supabase)
+      .from('chat_content')
+      .insert([{ role: 'user', content: input, session_id: historyId }])
 
+    if (tError) {
+      console.error('Failed to insert chat_content:', tError)
+    }
     // ✅ 3) บันทึกเนื้อหาจาก AI ลง chat_content
     const { error: insertError } = await (await supabase)
       .from('chat_content')
@@ -85,14 +92,7 @@ export async function POST(req: Request) {
     if (insertError) {
       console.error('Failed to insert chat_content:', insertError)
     }
-    // ✅ 3) บันทึกเนื้อหาจาก User ลง chat_content
-    const { error: tError } = await (await supabase)
-      .from('chat_content')
-      .insert([{ role: 'user', content: input, session_id: historyId }])
 
-    if (tError) {
-      console.error('Failed to insert chat_content:', insertError)
-    }
 
     return NextResponse.json({ reply })
   } catch (error) {
