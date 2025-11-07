@@ -268,8 +268,7 @@ allow_contact_block=${contactIntent ? 'true' : 'false'}
 - ถ้าจะใช้หัวข้อ ให้ใช้เท่าที่จำเป็นและสั้น
 
 [history]
-
-user: {${onlyUserChat.map(msg => msg.text).join('\n')},}
+user: ${onlyUserChat.map((msg, i) => `${i + 1}. ${msg.text}`).join('\n')}
 
 [user]
 ${text}
