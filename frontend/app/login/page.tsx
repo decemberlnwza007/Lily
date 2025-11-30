@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { createClient } from '../utils/supabase/client'
 import { loginUser } from './action'
 import '../style/login.css'
+import Image from 'next/image'
 
 const supabase = createClient()
 
@@ -55,58 +56,66 @@ export default function AuthPage() {
 
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+          <h1 className="text-3xl font-bold text-dark mb-2">
             ยินดีต้อนรับสู่ Lily
           </h1>
-          <p className="text-gray-600 text-sm leading-relaxed">
+          {/* <p className="text-gray-600 text-sm leading-relaxed">
             พื้นที่ปลอดภัยสำหรับสุขภาพใจของคุณ
             <br />
             เราพร้อมอยู่เคียงข้างคุณในทุกช่วงเวลา
-          </p>
+          </p> */}
         </div>
 
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 border border-white/50">
+        {/* <div className="relative ">
+      <Image
+        src="/Lily/Lily.png"
+        alt="Lily Mascot"
+        width={140}
+        height={140}
+        className="animate-[breathing_3s_ease-in-out_infinite] opacity-95 drop-shadow-xl"
+      />
+    </div> */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 block">อีเมล</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-mint-500" />
+                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-600" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="กรอกอีเมลของคุณ"
                   required
-                  className="w-full pl-12 pr-4 py-3 border border-mint-200 rounded-2xl focus:ring-2 focus:ring-mint-300 focus:border-mint-300 outline-none transition-all duration-200 bg-white/70 placeholder-gray-400"
+                  className="w-full pl-12 pr-4 py-3 border-2 border-green-200  rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200 bg-white/70 placeholder-gray-400"
                 />
               </div>
             </div>
 
-            {/* Password */}
+            
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 block">รหัสผ่าน</label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-mint-500" />
+                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-600" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="กรอกรหัสผ่านของคุณ"
                   required
-                  className="w-full pl-12 pr-12 py-3 border border-mint-200 rounded-2xl focus:ring-2 focus:ring-mint-300 focus:border-mint-300 outline-none transition-all duration-200 bg-white/70 placeholder-gray-400"
+                  className="w-full pl-12 pr-12 py-3 border-2 border-green-200 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200 bg-white/70 placeholder-gray-400"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-mint-500 hover:text-mint-600 transition-colors"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-green-500 hover:text-green-600 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
 
-            {/* Submit */}
+
             <button
               type="submit"
               disabled={loading}
@@ -137,7 +146,7 @@ export default function AuthPage() {
               <button
                 type="button"
                 onClick={handleGoogleLogin}
-                className="flex items-center cursor-pointer justify-center gap-3 bg-white border border-mint-200 text-mint-600 font-semibold px-6 py-3 rounded-2xl hover:bg-mint-50 transition w-full hover:bg-green-200"
+                className="flex items-center cursor-pointer border-white hover:border-solid hover:border-green-500 justify-center gap-3 bg-white border border-mint-200 text-mint-600 font-semibold px-6 py-3 rounded-2xl hover:bg-mint-50 transition w-full hover:bg-green-200"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 48 48" fill="none">
                   <path

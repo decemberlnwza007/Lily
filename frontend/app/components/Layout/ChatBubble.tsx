@@ -554,7 +554,7 @@ LINK:/info|label=Infographic สุขภาพจิต
 function LilyAvatar({ className = 'relative h-10 w-10 rounded-full overflow-hidden' }: { className?: string }) {
   return (
     <Image
-      src="/Lily/Lily-removebg-preview.png"
+      src="/Lily/Lily-Smile.png"
       alt="Lily Standing"
       width={130}
       height={130}
