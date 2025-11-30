@@ -5,7 +5,9 @@ import { ExternalLink, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
-export default function InfographicDetail() {
+import { Suspense } from "react";
+
+function InfographicContent() {
   const params = useSearchParams();
 
   const name = params.get("name");
@@ -25,11 +27,12 @@ export default function InfographicDetail() {
         </a>
 
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-white overflow-hidden">
-          <div className="aspect-[16/9] w-full bg-emerald-50">
-            <img
+          <div className="aspect-[16/9] w-full bg-emerald-50 relative">
+            <Image
               src={path || "/default.jpg"}
               alt={name || "info"}
-              className="h-full w-full object-cover"
+              fill
+              className="object-cover"
             />
           </div>
           <div className="p-6 sm:p-8">
@@ -68,5 +71,13 @@ export default function InfographicDetail() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function InfographicDetail() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <InfographicContent />
+    </Suspense>
   );
 }

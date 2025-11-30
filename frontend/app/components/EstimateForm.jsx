@@ -14,16 +14,17 @@ export default function EstimateForm() {
   const [answers, setAnswers] = useState({})
 
   const [userId, setUserId] = useState('')
+  const [session, setSession] = useState(null) // Added setSession state
   useEffect(() => {
-    const getUserId = async () => {
+    const fetchSession = async () => {
       const { data } = await supabase.auth.getSession()
+      setSession(data.session)
       const uid = data?.session?.user?.id
       if (uid) setUserId(uid)
       console.log(uid)
     }
-
-    getUserId()
-  }, []) // ← สำคัญ! ไม่งั้นจะรันทุก render
+    fetchSession()
+  }, [supabase.auth])
 
   const questions = [
     'เบื่อ ไม่สนใจอยากทำอะไร',
@@ -112,7 +113,7 @@ export default function EstimateForm() {
                 console.log('✅ อัปเดต status_9q สำเร็จแล้ว!', resultText)
               }
               router.push('/eightquestion')
-            }else {
+            } else {
               router.push('/')
             }
           }

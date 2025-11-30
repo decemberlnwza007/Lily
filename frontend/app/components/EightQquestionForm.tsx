@@ -15,15 +15,14 @@ export default function EightQquestionForm() {
     const [answers, setAnswers] = useState({})
     const [userId, setUserId] = useState('')
     useEffect(() => {
-        const getUserId = async () => {
+        const fetchSession = async () => {
             const { data } = await supabase.auth.getSession()
             const uid = data?.session?.user?.id
             if (uid) setUserId(uid)
             console.log(uid)
         }
-
-        getUserId()
-    }, []) // ← สำคัญ! ไม่งั้นจะรันทุก render
+        fetchSession()
+    }, [supabase.auth])
     const questions = [
         {
             question: 'คิดอยากตาย หรือ คิดว่าตายไปจะดีกว่า',

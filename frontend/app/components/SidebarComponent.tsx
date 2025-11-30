@@ -35,9 +35,8 @@ type SidebarLayoutProps = {
 }
 
 export default function SidebarLayout() {
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
   const [session, setSession] = useState<Session | null>(null)
-  const [Mychats, setMyChats] = useState([])
 
   // โหลด session
   useEffect(() => {
@@ -46,7 +45,7 @@ export default function SidebarLayout() {
       setSession(data.session)
     }
     fetchSession()
-  }, [])
+  }, [supabase.auth])
 
 
   const pathname = usePathname()
@@ -73,42 +72,6 @@ export default function SidebarLayout() {
     supabase.auth.signOut()
     setShowProfileModal(false)
     redirect('/login')
-  }
-
-  const NavLink = ({ href, label, Icon }: any) => {
-    const active = pathname === href
-    const handleClick = (e: React.MouseEvent) => {
-      if (href === '/' && chats.length > 0) {
-        e.preventDefault()
-        setIsOpen(false)
-        router.push(`/chat/${chats[0].id}`)
-        return
-      }
-      setIsOpen(false)
-    }
-
-
-    return (
-      <Link
-        href={href}
-        onClick={handleClick}
-        className={[
-          'group flex items-center gap-4 px-5 py-3 rounded-2xl transition-all duration-200 border',
-          'backdrop-blur-sm shadow-sm hover:shadow-md',
-          active
-            ? 'bg-white/70 text-emerald-800 border-white/70'
-            : 'text-emerald-900/80 hover:text-emerald-900 hover:bg-white/30 border-white/30',
-        ].join(' ')}
-      >
-        <Icon
-          className={`w-5 h-5 transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-110'}`}
-        />
-        <span className="text-base font-medium">{label}</span>
-        {active && (
-          <span className="ml-auto h-2 w-2 rounded-full bg-emerald-500/90 shadow-[0_0_8px] shadow-emerald-400/60" />
-        )}
-      </Link>
-    )
   }
 
   const activeChatId = useMemo(() => {
@@ -161,9 +124,40 @@ export default function SidebarLayout() {
 
         <nav className="relative z-10 px-4 pb-4 space-y-2">
           <div className="mx-2 mb-2 h-px bg-white/40" />
-          {navItems.map((n) => (
-            <NavLink key={n.href} href={n.href} label={n.label} Icon={n.icon} />
-          ))}
+          {navItems.map((n) => {
+            const active = pathname === n.href
+            const handleClick = (e: React.MouseEvent) => {
+              if (n.href === '/' && chats.length > 0) {
+                e.preventDefault()
+                setIsOpen(false)
+                router.push(`/chat/${chats[0].id}`)
+                return
+              }
+              setIsOpen(false)
+            }
+            return (
+              <Link
+                key={n.href}
+                href={n.href}
+                onClick={handleClick}
+                className={[
+                  'group flex items-center gap-4 px-5 py-3 rounded-2xl transition-all duration-200 border',
+                  'backdrop-blur-sm shadow-sm hover:shadow-md',
+                  active
+                    ? 'bg-white/70 text-emerald-800 border-white/70'
+                    : 'text-emerald-900/80 hover:text-emerald-900 hover:bg-white/30 border-white/30',
+                ].join(' ')}
+              >
+                <n.icon
+                  className={`w-5 h-5 transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-110'}`}
+                />
+                <span className="text-base font-medium">{n.label}</span>
+                {active && (
+                  <span className="ml-auto h-2 w-2 rounded-full bg-emerald-500/90 shadow-[0_0_8px] shadow-emerald-400/60" />
+                )}
+              </Link>
+            )
+          })}
 
           {chats.length > 0 && (
             <div className="mt-3">
@@ -234,7 +228,7 @@ export default function SidebarLayout() {
             console.log(data.data.session)
           }}
         >
-          
+
         </button>
       </aside>
 
@@ -274,7 +268,7 @@ export default function SidebarLayout() {
             </div>
 
             <div className="space-y-2">
-              
+
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center gap-3 px-5 py-3 rounded-2xl border border-red-200 text-red-600 hover:bg-red-50 transition cursor-pointer"
