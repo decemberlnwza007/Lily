@@ -37,17 +37,24 @@ type SidebarLayoutProps = {
 export default function SidebarLayout() {
   const supabase = useMemo(() => createClient(), [])
   const [session, setSession] = useState<Session | null>(null)
+  const [loading, setLoading] = useState(true)
 
   // โหลด session
-useEffect(() => {
-  const fetchSession = async () => {
-    const { data } = await supabase.auth.getSession()
-    setSession(data.session)
-  }
-  fetchSession()
-}, []) // ❗ ไม่มี dependency
+  useEffect(() => {
+    const fetchSession = async () => {
+      const { data } = await supabase.auth.getSession()
+      setSession(data.session)
+      setLoading(false)
+    }
+    fetchSession()
 
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+      setLoading(false)
+    })
 
+    return () => subscription.unsubscribe()
+  }, [supabase])
 
   const pathname = usePathname()
   const router = useRouter()
@@ -69,16 +76,45 @@ useEffect(() => {
     } catch { /* no-op */ }
   }, [chats])
 
-  const handleLogout = () => {
-    supabase.auth.signOut()
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
     setShowProfileModal(false)
-    redirect('/login')
+    router.push('/login')
   }
 
   const activeChatId = useMemo(() => {
     const match = pathname?.match(/^\/chat\/(\d+)/)
     return match?.[1] || null
   }, [pathname])
+
+  // Filter nav items based on assessment status
+  const filteredNavItems = useMemo(() => {
+    if (loading) return [] // หรือจะ return แค่ help ก็ได้
+
+    const hasCompletedAssessment = session?.user?.user_metadata?.has_completed_assessment === true
+    const lastAssessmentDate = session?.user?.user_metadata?.last_assessment_date
+
+    if (hasCompletedAssessment) {
+      // ถ้ามีวันที่ทำล่าสุด ให้เช็คว่าเกิน 7 วันหรือยัง
+      if (lastAssessmentDate) {
+        const lastDate = new Date(lastAssessmentDate)
+        const now = new Date()
+        const diffTime = Math.abs(now.getTime() - lastDate.getTime())
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+        if (diffDays >= 7) {
+          // เกิน 7 วัน -> แสดงเมนูแบบประเมินให้ทำใหม่ได้
+          return navItems
+        }
+      }
+
+      // ถ้าเสร็จแล้วและยังไม่เกิน 7 วัน -> ซ่อนแบบประเมิน
+      return navItems.filter(item => item.href !== '/despression')
+    } else {
+      // ถ้ายังไม่เสร็จ ให้เห็นแค่แบบประเมิน (และช่วยเหลือถ้าต้องการ)
+      return navItems.filter(item => item.href === '/despression' || item.href === '/help')
+    }
+  }, [session, loading])
 
   return (
     <div className="flex h-dvh">
@@ -125,7 +161,7 @@ useEffect(() => {
 
         <nav className="relative z-10 px-4 pb-4 space-y-2">
           <div className="mx-2 mb-2 h-px bg-white/40" />
-          {navItems.map((n) => {
+          {filteredNavItems.map((n) => {
             const active = pathname === n.href
             const handleClick = (e: React.MouseEvent) => {
               if (n.href === '/' && chats.length > 0) {
@@ -160,7 +196,7 @@ useEffect(() => {
             )
           })}
 
-          {chats.length > 0 && (
+          {chats.length > 0 && session?.user?.user_metadata?.has_completed_assessment && (
             <div className="mt-3">
               <div className="mx-2 mb-2 h-px bg-white/40" />
               <div className="px-3 py-2 text-xs tracking-wide text-emerald-950/80">
@@ -223,14 +259,6 @@ useEffect(() => {
             </div>
           </div>
         </div>
-        <button
-          onClick={async () => {
-            const data = await supabase.auth.getSession()
-            console.log(data.data.session)
-          }}
-        >
-
-        </button>
       </aside>
 
       {showProfileModal && (

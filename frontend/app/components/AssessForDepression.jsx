@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
+import { completeAssessment } from '../actions/user'
 
 import './../style/login.css'
 
@@ -41,8 +42,15 @@ export default function AssessForDespression() {
         popup: 'rounded-2xl',
       },
       buttonsStyling: false,
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed && redirectPath) {
+        if (redirectPath === '/') {
+          try {
+            await completeAssessment()
+          } catch (err) {
+            console.error('Error completing assessment:', err)
+          }
+        }
         router.push(redirectPath)
       }
     })
@@ -123,8 +131,8 @@ export default function AssessForDespression() {
                     key={index}
                     onClick={() => handleAnswer(option.value)}
                     className={`w-full p-6 rounded-2xl font-medium text-lg transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md ${option.color} ${answers[currentQuestion] === option.value
-                        ? 'ring-4 ring-mint-300 scale-105'
-                        : ''
+                      ? 'ring-4 ring-mint-300 scale-105'
+                      : ''
                       }`}
                   >
                     <div className="flex items-center justify-between">
@@ -167,10 +175,10 @@ export default function AssessForDespression() {
               <div
                 key={index}
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentQuestion
-                    ? 'bg-mint-500 scale-125'
-                    : answers[index] !== undefined
-                      ? 'bg-mint-300'
-                      : 'bg-gray-200'
+                  ? 'bg-mint-500 scale-125'
+                  : answers[index] !== undefined
+                    ? 'bg-mint-300'
+                    : 'bg-gray-200'
                   }`}
               ></div>
             ))}

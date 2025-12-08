@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
+import { completeAssessment } from '../actions/user'
 
 import './../style/login.css'
 import { createClient } from '../utils/supabase/client'
@@ -114,6 +115,11 @@ export default function EstimateForm() {
               }
               router.push('/eightquestion')
             } else {
+              try {
+                await completeAssessment()
+              } catch (err) {
+                console.error('Error completing assessment:', err)
+              }
               router.push('/')
             }
           }

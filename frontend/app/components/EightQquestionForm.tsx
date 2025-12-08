@@ -4,6 +4,7 @@
 import { useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
 import { useState, useEffect } from 'react'
+import { completeAssessment } from '../actions/user'
 
 import './../style/login.css'
 import { createClient } from '../utils/supabase/client'
@@ -140,18 +141,26 @@ export default function EightQquestionForm() {
                         popup: 'rounded-xl p-6',
                     },
                     buttonsStyling: false,
-                }).then(async () => {
-                    const { error: updateError } = await supabase
-                        .from('profiles')
-                        .update({ status_8q: resultText })
-                        .eq('id', userId)
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        const { error: updateError } = await supabase
+                            .from('profiles')
+                            .update({ status_8q: resultText })
+                            .eq('id', userId)
 
-                    if (updateError) {
-                        console.error('❌ อัปเดต status_8q ล้มเหลว:', updateError)
-                    } else {
-                        console.log('✅ อัปเดต status_8q สำเร็จแล้ว!', resultText)
+                        if (updateError) {
+                            console.error('❌ อัปเดต status_8q ล้มเหลว:', updateError)
+                        } else {
+                            console.log('✅ อัปเดต status_8q สำเร็จแล้ว!', resultText)
+                        }
+
+                        try {
+                            await completeAssessment()
+                        } catch (err) {
+                            console.error('Error completing assessment:', err)
+                        }
+                        router.push('/')
                     }
-                    router.push('/')
                 })
             } else {
                 setCurrentQuestion(nextQuestionIndex)
