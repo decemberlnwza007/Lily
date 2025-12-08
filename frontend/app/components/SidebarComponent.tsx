@@ -39,13 +39,14 @@ export default function SidebarLayout() {
   const [session, setSession] = useState<Session | null>(null)
 
   // โหลด session
-  useEffect(() => {
-    const fetchSession = async () => {
-      const { data } = await supabase.auth.getSession()
-      setSession(data.session)
-    }
-    fetchSession()
-  }, [supabase.auth])
+useEffect(() => {
+  const fetchSession = async () => {
+    const { data } = await supabase.auth.getSession()
+    setSession(data.session)
+  }
+  fetchSession()
+}, []) // ❗ ไม่มี dependency
+
 
 
   const pathname = usePathname()

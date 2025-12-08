@@ -42,22 +42,22 @@ export default function EstimateForm() {
     {
       value: 0,
       label: 'ไม่เลย',
-      color: 'bg-green-100 text-green-800 hover:bg-green-200',
+      color: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200',
     },
     {
       value: 1,
       label: 'เป็นบางวัน 1 - 7 วัน',
-      color: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200',
+      color: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200',
     },
     {
       value: 2,
       label: 'เป็นบ่อย > 7 วัน',
-      color: 'bg-orange-100 text-orange-800 hover:bg-orange-200',
+      color: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200',
     },
     {
       value: 3,
       label: 'มากกว่า 7 วัน',
-      color: 'bg-red-100 text-red-800 hover:bg-red-200',
+      color: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200',
     },
   ]
 

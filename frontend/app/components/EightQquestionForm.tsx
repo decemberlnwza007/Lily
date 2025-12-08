@@ -73,8 +73,8 @@ export default function EightQquestionForm() {
     ]
 
     const options = [
-        { label: 'ไม่มี', valueKey: 'no', color: 'bg-green-100 text-green-800 hover:bg-green-200' },
-        { label: 'มี', valueKey: 'yes', color: 'bg-red-100 text-red-800 hover:bg-red-200' },
+        { label: 'ไม่มี', valueKey: 'no', color: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' },
+        { label: 'มี', valueKey: 'yes', color: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' },
     ]
 
     const handleAnswer = (valueKey) => {
@@ -123,7 +123,7 @@ export default function EightQquestionForm() {
                 } else if (totalScore >= 9 && totalScore <= 16) {
                     resultText = 'มีแนวโน้มที่จะฆ่าตัวตายในปัจจุบัน ระดับปานกลาง'
                 } else if (totalScore >= 17) {
-                    resultText = 'มีแนวโน้มที่จะฆ่าตัวตายในปัจจุบัน ระดับรุนแรง' //\nคุณสามารถติดต่อสายด่วนสุขภาพจิต 1323 ได้ตลอด 24 ชั่วโมงเพื่อรับคำปรึกษา'
+                    resultText = 'มีแนวโน้มที่จะฆ่าตัวตายในปัจจุบัน ระดับรุนแรง'
                 }
 
 
@@ -141,8 +141,6 @@ export default function EightQquestionForm() {
                     },
                     buttonsStyling: false,
                 }).then(async () => {
-
-                    // ✅ อัปเดต status_8q ใน profiles โดยใช้ resultText โดยตรง
                     const { error: updateError } = await supabase
                         .from('profiles')
                         .update({ status_8q: resultText })
@@ -153,8 +151,6 @@ export default function EightQquestionForm() {
                     } else {
                         console.log('✅ อัปเดต status_8q สำเร็จแล้ว!', resultText)
                     }
-
-                    // ✅ กลับไปหน้าหลัก
                     router.push('/')
                 })
             } else {
@@ -172,10 +168,7 @@ export default function EightQquestionForm() {
         }
     }
 
-
-    // ✅ คำนวณ progress แยกออกมา
     const progress = ((currentQuestion + 1) / questions.length) * 100
-
 
     return (
         <div className="min-h-screen w-full bg-gradient-to-br from-mint-50 to-emerald-50 p-4 relative overflow-hidden">
@@ -230,9 +223,6 @@ export default function EightQquestionForm() {
                                     >
                                         <div className="flex items-center justify-between">
                                             <span>{option.label}</span>
-                                            {/* <span className="text-2xl font-bold opacity-50">
-                                                {questions[currentQuestion][option.valueKey]}
-                                            </span> */}
                                         </div>
                                     </button>
                                 ))}

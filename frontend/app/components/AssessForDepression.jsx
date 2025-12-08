@@ -25,7 +25,7 @@ export default function AssessForDespression() {
     {
       value: 1,
       label: 'มี',
-      color: 'bg-amber-100 text-amber-800 hover:bg-amber-200',
+      color: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200',
     },
   ]
 

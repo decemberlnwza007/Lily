@@ -12,9 +12,6 @@ export default function HelpPage() {
         {/* Hero */}
         <div className="rounded-3xl border border-emerald-100/70 bg-white/80 backdrop-blur p-6 md:p-8 shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-2xl bg-emerald-100 flex items-center justify-center">
-              <span className="text-2xl">💚</span>
-            </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-emerald-900">ศูนย์ช่วยเหลือ</h1>
               <p className="mt-1 text-emerald-950/80">

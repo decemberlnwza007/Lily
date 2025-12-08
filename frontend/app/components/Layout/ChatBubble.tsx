@@ -62,134 +62,108 @@ export default function ChatPage({ chatId }: ChatPageProps) {
   const [charCount, setCharCount] = useState(0)
   const [session, setSession] = useState<any>(null)
 
-  const maxChars = 500
+  const maxChars = 1024
 
   useEffect(() => {
-    const loadSession = async () => {
+    // 1.1 Load Theme
+    const savedTheme = localStorage.getItem(themeKey)
+    if (savedTheme) setDarkMode(savedTheme === 'dark')
+
+    // 1.2 Load UserName
+    const savedName = localStorage.getItem(nameKey)
+    if (savedName) setUserName(savedName)
+
+    // 1.3 Load Session & UserId
+    const initSession = async () => {
       const { data, error } = await supabase.auth.getSession()
-      if (error) {
-        console.error('getSession error:', error)
-        return
+      if (!error && data?.session) {
+        setSession(data.session)
+        setUserId(data.session.user.id)
       }
-      const uid = data?.session?.user?.id
-      if (uid) setUserId(uid)
     }
-    loadSession()
-  }, [])
+    initSession()
 
-  useEffect(() => {
-    if (!userId) return
-
-    const getUserData = async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single()
-
-      if (error) return
-      setMyQ(data)
-    }
-
-    getUserData()
-  }, [userId])
-
-  useEffect(() => {
-    if (messages.length === 1 && messages[0].type === 'bot') {
-      setMessages([{
-        type: 'bot',
-        text: userName ? `สวัสดี ${userName} 🌿 วันนี้อยากให้ลิลลี่ช่วยเรื่องไหนดีน้า` : 'สวัสดีค่ะ มีอะไรให้ลิลลี่ช่วยมั้ยคะ?',
-        ts: Date.now()
-      }])
-    }
-  }, [userName])
-
-  useEffect(() => {
+    // 1.4 Load Local History (Backup)
     try {
       const raw = localStorage.getItem(storageKey)
-      if (!raw) return
-      const arr: any[] = JSON.parse(raw)
-      const fixed = arr.map(m => ({ ...m, ts: m.ts ?? Date.now() }))
-      fixed.sort((a, b) => a.ts - b.ts)
-      setMessages(fixed)
+      if (raw) {
+        const arr: any[] = JSON.parse(raw)
+        const fixed = arr.map(m => ({ ...m, ts: m.ts ?? Date.now() })).sort((a, b) => a.ts - b.ts)
+        setMessages(fixed)
+      } else {
+        // Default Greeting ถ้าไม่มีประวัติ
+        setMessages([{
+          type: 'bot',
+          text: 'สวัสดีค่ะ มีอะไรให้ลิลลี่ช่วยมั้ยคะ?',
+          ts: Date.now(),
+          kind: 'greeting'
+        }])
+      }
     } catch { }
-  }, [storageKey])
+  }, []) // Empty dependency array = run once
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(messages))
-    } catch { }
-  }, [messages, storageKey])
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(nameKey)
-      if (raw) setUserName(raw)
-    } catch { }
-  }, [nameKey])
-
-  useEffect(() => {
-    try {
-      if (userName) localStorage.setItem(nameKey, userName)
-    } catch { }
-  }, [userName, nameKey])
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(themeKey)
-      if (saved) setDarkMode(saved === 'dark')
-    } catch { }
-  }, [])
-
-  useEffect(() => {
-  const load = async () => {
-    const { data } = await supabase.auth.getSession()
-    setSession(data.session)
-  }
-  load()
-}, [])
-
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(themeKey, darkMode ? 'dark' : 'light')
-    } catch { }
-  }, [darkMode])
-
+  // -------------------------------------------------------
+  // 2. DATA FETCHING (ทำเมื่อได้ UserId แล้ว)
+  // -------------------------------------------------------
   useEffect(() => {
     if (!userId) return
 
-    const getChat = async () => {
-      const fetchChat = async (): Promise<Msg[]> => {
-        const res = await fetch(`/api/chat-history?user_id=${userId}`)
-        const data: ChatApiResponse = await res.json()
+    const fetchData = async () => {
+      // 2.1 Fetch Profile
+      const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single()
+      if (profile) setMyQ(profile)
 
-        return data.messages
+      // 2.2 Fetch Chat History from API
+      try {
+        const res = await fetch(`/api/chat-history?user_id=${userId}`)
+        const data: ChatApiResponse = await res.json()  
+        const apiMsgs = data.messages
           .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
           .map((msg): Msg => ({
             type: msg.role === 'ai' ? 'bot' : 'user',
             text: msg.content,
             ts: new Date(msg.created_at).getTime(),
           }))
+
+        if (apiMsgs.length > 0) {
+          setMessages(apiMsgs)
+          setOnlyUserChat(apiMsgs.filter(msg => msg.type === 'user'))
+        }
+      } catch (e) {
+        console.error("Failed to load chat history", e)
       }
-
-      const msgs = await fetchChat()
-      setMessages(msgs)
-
-      const onlyUser = msgs.filter(msg => msg.type === 'user')
-      setOnlyUserChat(onlyUser)
     }
 
-    getChat()
+    
+
+    fetchData()
   }, [userId])
 
+  // -------------------------------------------------------
+  // 3. SYNC & UI UPDATES (ทำเมื่อค่าเปลี่ยน)
+  // -------------------------------------------------------
+
+  // Update Greeting text if userName changes (เฉพาะข้อความแรก)
+  useEffect(() => {
+    if (messages.length === 1 && messages[0].type === 'bot' && userName) {
+      setMessages([{
+        ...messages[0],
+        text: `สวัสดี ${userName} 🌿 วันนี้อยากให้ลิลลี่ช่วยเรื่องไหนดีน้า`
+      }])
+    }
+  }, [userName]) // run only when userName changes
+
+  // Save to LocalStorage
+  useEffect(() => {
+    if (messages.length > 0) localStorage.setItem(storageKey, JSON.stringify(messages))
+    if (userName) localStorage.setItem(nameKey, userName)
+    localStorage.setItem(themeKey, darkMode ? 'dark' : 'light')
+  }, [messages, userName, darkMode, storageKey, nameKey])
+
+  // Auto Scroll
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isTyping])
-
-  useEffect(() => {
-    setCharCount(input.length)
-  }, [input])
 
   function buildHistory(messages: { type: 'bot' | 'user'; text: string }[], limit = 8) {
     const slice = messages.slice(-limit)
@@ -443,8 +417,8 @@ LINK:/info|label=Infographic สุขภาพจิต
               className="bg-white/90 text-slate-700 px-4 py-2 rounded-2xl shadow-lg border
                  border-emerald-200 text-sm sm:text-base max-w-[240px]"
             >
-              สวัสดีค่ะคุณ {session?.user?.user_metadata?.name} 🌿
-              วันนี้รู้สึกเป็นยังไงบ้างน้า 💚
+              สวัสดีค่ะคุณ {session?.user?.user_metadata?.name}
+              วันนี้รู้สึกเป็นยังไงบ้างคะ
             </div>
           </div>
         )}
@@ -483,10 +457,10 @@ LINK:/info|label=Infographic สุขภาพจิต
               <LilyAvatar className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-[10px] sm:text-xs text-emerald-700/70">
+              {/*} <div className="text-[10px] sm:text-xs text-emerald-700/70">
                 อยู่ตรงนี้เป็นเพื่อนเสมอนะ
               </div>
-
+                */}
               <div className="text-xs sm:text-sm md:text-base font-semibold truncate">Lily Support</div>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
