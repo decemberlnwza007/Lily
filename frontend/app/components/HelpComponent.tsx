@@ -74,7 +74,7 @@ export default function HelpPage() {
           </a>
 
           {/* 3) Infographic สุขภาพจิต */}
-          <a
+          {/* <a
             href="/info"
             target="_blank"
             rel="noopener noreferrer"
@@ -97,7 +97,7 @@ export default function HelpPage() {
             <div className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700 group-hover:text-emerald-800">
               เปิดหน้ารวม Infographic
             </div>
-          </a>
+          </a> */}
         </div>
 
         <p className="mt-6 text-xs text-emerald-900/60">

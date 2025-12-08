@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, ArrowRight, ExternalLink } from "lucide-react";
+import { Search, ArrowRight, ExternalLink, BookOpen } from "lucide-react";
 
 type Item = {
   id: number;
@@ -74,81 +74,126 @@ export default function InfoGraphic() {
   }, [search]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-100 py-12 px-4 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16 space-y-4">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600 drop-shadow-sm">
-            คลังความรู้สุขภาพจิต
+          <div className="inline-flex items-center justify-center p-3 bg-emerald-100 rounded-2xl mb-4">
+            <BookOpen className="w-8 h-8 text-emerald-600" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight">
+            คลังความรู้<span className="text-emerald-600">สุขภาพจิต</span>
           </h1>
-          <p className="text-lg text-emerald-800/70 max-w-2xl mx-auto font-medium">
-            รวบรวมข้อมูลและสาระน่ารู้เกี่ยวกับโรคทางจิตเวช เพื่อความเข้าใจที่ถูกต้อง
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto font-medium">
+            แหล่งรวมข้อมูลที่ถูกต้องและน่าเชื่อถือ เพื่อความเข้าใจที่ดียิ่งขึ้น
           </p>
         </div>
 
         <div className="relative max-w-2xl mx-auto mb-16 group">
           <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-            <Search className="h-6 w-6 text-emerald-400 group-focus-within:text-emerald-600 transition-colors" />
+            <Search className="h-5 w-5 text-gray-400 group-focus-within:text-emerald-500 transition-colors" />
           </div>
           <input
             type="text"
             placeholder="ค้นหาบทความ..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-14 pr-6 py-4 rounded-2xl border-2 border-emerald-100 bg-white/80 backdrop-blur-sm text-emerald-900 placeholder-emerald-400/70 focus:outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100/50 transition-all shadow-lg hover:shadow-xl text-lg"
+            className="w-full pl-12 pr-6 py-4 rounded-2xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50 transition-all shadow-sm hover:shadow-md text-base"
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredItems.map((item) => (
-            <Link
-              href={{
-                pathname: "/infographic-detail",
-                query: {
-                  name: item.name,
-                  path: item.path,
-                  detail: item.detail,
-                  credit: item.credit,
-                },
-              }}
+            <div
               key={item.id}
-              className="group relative bg-white rounded-3xl overflow-hidden border border-emerald-100/50 shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col h-full"
+              className="group bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full"
             >
-              <div className="relative h-56 overflow-hidden">
-                <div className="absolute inset-0 bg-emerald-900/10 group-hover:bg-transparent transition-colors z-10" />
+              <Link
+                href={{
+                  pathname: "/infographic-detail",
+                  query: {
+                    name: item.name,
+                    path: item.path,
+                    detail: item.detail,
+                    credit: item.credit,
+                  },
+                }}
+                className="block relative h-56 overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors z-10" />
                 <Image
                   src={item.path}
                   alt={item.name}
                   fill
-                  className="object-cover transform group-hover:scale-110 transition-transform duration-700"
+                  className="object-cover transform group-hover:scale-105 transition-transform duration-500"
                 />
-              </div>
+              </Link>
 
-              <div className="p-8 flex flex-col flex-grow relative z-20 bg-white/95 backdrop-blur-sm">
-                <h2 className="text-xl font-bold text-emerald-950 mb-3 line-clamp-1 group-hover:text-emerald-600 transition-colors">
-                  {item.name}
-                </h2>
-                <p className="text-emerald-800/70 text-sm leading-relaxed line-clamp-3 mb-6 flex-grow">
+              <div className="p-6 flex flex-col flex-grow">
+                <Link
+                  href={{
+                    pathname: "/infographic-detail",
+                    query: {
+                      name: item.name,
+                      path: item.path,
+                      detail: item.detail,
+                      credit: item.credit,
+                    },
+                  }}
+                >
+                  <h2 className="text-xl font-bold text-gray-900 mb-3 line-clamp-1 group-hover:text-emerald-600 transition-colors">
+                    {item.name}
+                  </h2>
+                </Link>
+
+                <p className="text-gray-500 text-sm leading-relaxed line-clamp-3 mb-6 flex-grow">
                   {item.detail}
                 </p>
 
-                <div className="flex items-center text-emerald-600 font-semibold text-sm group/btn">
-                  <span className="group-hover/btn:mr-2 transition-all">อ่านเพิ่มเติม</span>
-                  <ArrowRight className="w-4 h-4 opacity-0 -ml-4 group-hover/btn:opacity-100 group-hover/btn:ml-0 transition-all" />
+                <div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
+                  {item.credit ? (
+                    <a
+                      href={item.credit}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-emerald-600 transition-colors"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      แหล่งที่มา
+                    </a>
+                  ) : (
+                    <span className="text-xs text-gray-300">ไม่มีแหล่งที่มา</span>
+                  )}
+
+                  <Link
+                    href={{
+                      pathname: "/infographic-detail",
+                      query: {
+                        name: item.name,
+                        path: item.path,
+                        detail: item.detail,
+                        credit: item.credit,
+                      },
+                    }}
+                    className="flex items-center gap-1 text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
+                  >
+                    อ่านต่อ
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
 
         {filteredItems.length === 0 && (
           <div className="text-center py-20">
-            <div className="bg-emerald-100/50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Search className="h-10 w-10 text-emerald-400" />
+            <div className="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Search className="h-10 w-10 text-gray-400" />
             </div>
-            <h3 className="text-xl font-semibold text-emerald-900 mb-2">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
               ไม่พบข้อมูลที่ค้นหา
             </h3>
-            <p className="text-emerald-600/70">
+            <p className="text-gray-500">
               ลองค้นหาด้วยคำสำคัญอื่น หรือดูบทความทั้งหมด
             </p>
           </div>

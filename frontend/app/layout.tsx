@@ -1,4 +1,5 @@
 import './globals.css'
+import CrisisSupport from './components/CrisisSupport'
 
 export const metadata = {
   title: 'Lily',
@@ -12,7 +13,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <CrisisSupport />
+      </body>
     </html>
   )
 }
